@@ -1,0 +1,4 @@
+export enum TokenMailType {
+    REGISTER_USER = "REGISTER_USER",
+    REGISTER_ADMIN = "REGISTER_ADMIN"
+}

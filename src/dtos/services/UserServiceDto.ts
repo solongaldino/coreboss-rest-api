@@ -1,5 +1,7 @@
+import { UserType } from "../../enums/UserType";
+
 export interface CreateUserDto {
-    name: string;
     email: string;
     password: string;
+    type: UserType
 }

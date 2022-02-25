@@ -10,7 +10,7 @@ datasource db {
 model Ads {
   id          String    @id @unique(map: "id_UNIQUE") @db.Char(36)
   user        String    @db.Char(36)
-  status      Int       @db.UnsignedSmallInt
+  status      String    @db.VarChar(45)
   token       String    @db.VarChar(32)
   spotlighted Boolean
   created_at  DateTime  @db.DateTime(0)
@@ -60,7 +60,7 @@ model Invoice {
   ads        String    @db.Char(36)
   plan       String    @db.Char(36)
   value      Decimal   @db.Decimal(8, 2)
-  status     Int       @db.UnsignedSmallInt
+  status     String    @db.VarChar(45)
   token      String    @db.VarChar(45)
   created_at DateTime  @db.DateTime(0)
   updated_at DateTime? @db.DateTime(0)
@@ -75,8 +75,8 @@ model Invoice {
 model Job {
   id         String    @id @unique(map: "id_UNIQUE") @db.Char(36)
   tube       String    @db.Char(36)
-  type       Int       @db.UnsignedSmallInt
-  status     Int       @db.UnsignedSmallInt
+  type       String    @db.VarChar(45)
+  status     String    @db.VarChar(45)
   priority   Int       @db.UnsignedSmallInt
   attempts   Int       @db.UnsignedInt
   details    String    @db.VarChar(1020)
@@ -131,8 +131,8 @@ model TokenMail {
   id         String    @id @unique(map: "id_UNIQUE") @db.Char(36)
   email      String    @db.VarChar(255)
   token      String    @db.VarChar(255)
-  type       Int       @db.UnsignedSmallInt
-  status     Int       @db.UnsignedSmallInt
+  type       String    @db.VarChar(45)
+  status     String    @db.VarChar(45)
   details    String?   @db.VarChar(1020)
   created_at DateTime  @db.DateTime(0)
   updated_at DateTime? @db.DateTime(0)
@@ -142,7 +142,7 @@ model Tube {
   id         String    @id @unique(map: "id_UNIQUE") @db.Char(36)
   name       String    @db.VarChar(45)
   code       Int?      @db.UnsignedSmallInt
-  status     Int       @db.UnsignedSmallInt
+  status     String    @db.VarChar(45)
   created_at DateTime  @db.DateTime(0)
   updated_at DateTime? @db.DateTime(0)
   Job        Job[]
@@ -156,8 +156,8 @@ model User {
   id             String           @id @unique(map: "id_UNIQUE") @db.Char(36)
   email          String           @unique(map: "email_UNIQUE") @db.VarChar(255)
   password       String           @db.VarChar(255)
-  status         Int              @db.UnsignedSmallInt
-  type           Int              @db.UnsignedSmallInt
+  status         String           @db.VarChar(45)
+  type           String           @db.VarChar(45)
   attempt_login  Int              @db.UnsignedSmallInt
   created_at     DateTime         @db.DateTime(0)
   updated_at     DateTime?        @db.DateTime(0)

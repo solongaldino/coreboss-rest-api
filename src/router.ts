@@ -30,6 +30,12 @@ class Router{
             UserController.register
         );
 
+        express
+        .route('/user/confirmationRegister')
+        .post(
+            UserController.confirmationRegister
+        );
+
     }
 
 } export default Router;

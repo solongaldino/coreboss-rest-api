@@ -32,4 +32,17 @@ class UserController {
         }        
     }
 
+    public async  confirmationRegister(req: Request, res: Response): Promise<Response>{
+
+        try {
+
+            await UserService.createUser(req.body.email);
+
+            return res.send({"message": "ok"});
+            
+        } catch (error: any) {
+            return res.status(400).send({"error": error.message});
+        }        
+    }
+
 } export default new UserController;

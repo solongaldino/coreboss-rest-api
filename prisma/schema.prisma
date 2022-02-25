@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Ads {
+  id          String    @id @unique(map: "id_UNIQUE") @db.Char(36)
+  user        String    @db.Char(36)
+  status      Int       @db.UnsignedSmallInt
+  token       String    @db.VarChar(32)
+  spotlighted Boolean
+  created_at  DateTime  @db.DateTime(0)
+  updated_at  DateTime? @db.DateTime(0)
+  state       String?   @db.VarChar(45)
+  city        String?   @db.VarChar(45)
+  name        String?   @db.VarChar(45)
+  whatsapp    String?   @db.VarChar(45)
+  age         String?   @db.VarChar(45)
+  hair        String?   @db.VarChar(45)
+  height      String?   @db.VarChar(45)
+  weight      String?   @db.VarChar(45)
+  mannequin   String?   @db.VarChar(45)
+  foot        String?   @db.VarChar(45)
+  eyes        String?   @db.VarChar(45)
+  schedule    String?   @db.VarChar(45)
+  price       String?   @db.VarChar(45)
+  description String?   @db.VarChar(45)
+  attendance  String?   @db.VarChar(45)
+  own_place   String?   @db.VarChar(45)
+  cred_card   String?   @db.VarChar(45)
+  debit_card  String?   @db.VarChar(45)
+  code        String?   @db.VarChar(45)
+  photos      String?   @db.VarChar(45)
+  uprised_at  DateTime? @db.DateTime(0)
+  User        User      @relation(fields: [user], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_Ads_User1")
+  AdsTag      AdsTag[]
+  Invoice     Invoice[]
+  Photo       Photo[]
+
+  @@index([user], map: "fk_Ads_User1_idx")
+}
+
+model AdsTag {
+  id         String   @id @unique(map: "id_UNIQUE") @db.Char(36)
+  ads        String   @db.Char(36)
+  name       String   @db.VarChar(45)
+  type       String   @db.VarChar(45)
+  created_at DateTime @db.DateTime(0)
+  Ads        Ads      @relation(fields: [ads], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_AdsService_Ads1")
+
+  @@index([ads], map: "fk_AdsService_Ads1_idx")
+}
+
+model Invoice {
+  id         String    @id @unique(map: "id_UNIQUE") @db.Char(36)
+  ads        String    @db.Char(36)
+  plan       String    @db.Char(36)
+  value      Decimal   @db.Decimal(8, 2)
+  status     Int       @db.UnsignedSmallInt
+  token      String    @db.VarChar(45)
+  created_at DateTime  @db.DateTime(0)
+  updated_at DateTime? @db.DateTime(0)
+  Ads        Ads       @relation(fields: [ads], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_Invoice_Ads1")
+  Plan       Plan      @relation(fields: [plan], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_Invoice_Plan1")
+  Payment    Payment[]
+
+  @@index([ads], map: "fk_Invoice_Ads1_idx")
+  @@index([plan], map: "fk_Invoice_Plan1_idx")
+}
+
+model Job {
+  id         String    @id @unique(map: "id_UNIQUE") @db.Char(36)
+  tube       String    @db.Char(36)
+  type       Int       @db.UnsignedSmallInt
+  status     Int       @db.UnsignedSmallInt
+  priority   Int       @db.UnsignedSmallInt
+  attempts   Int       @db.UnsignedInt
+  details    String    @db.VarChar(1020)
+  created_at DateTime  @db.DateTime(0)
+  updated_at DateTime? @db.DateTime(0)
+  Tube       Tube      @relation(fields: [tube], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_Task_Tube1")
+
+  @@index([tube], map: "fk_Task_Tube1_idx")
+}
+
+model LoginStatement {
+  id         String   @id @unique(map: "id_UNIQUE") @db.Char(36)
+  user       String   @db.Char(36)
+  ip         String   @db.VarChar(45)
+  created_at DateTime @db.DateTime(0)
+  User       User     @relation(fields: [user], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_UserLoginStatement_User1")
+
+  @@index([user], map: "fk_UserLoginStatement_User1_idx")
+}
+
+model Payment {
+  id         String   @id @unique(map: "id_UNIQUE") @db.Char(36)
+  invoice    String   @db.Char(36)
+  created_at DateTime @db.DateTime(0)
+  Invoice    Invoice  @relation(fields: [invoice], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_Payment_Invoce1")
+
+  @@index([invoice], map: "fk_Payment_Invoce1_idx")
+}
+
+model Photo {
+  id         String    @id @unique(map: "id_UNIQUE") @db.Char(36)
+  ads        String    @db.Char(36)
+  url        String    @db.VarChar(500)
+  order      Int       @db.UnsignedSmallInt
+  created_at DateTime  @db.DateTime(0)
+  updated_at DateTime? @db.DateTime(0)
+  Ads        Ads       @relation(fields: [ads], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_Photo_Ads1")
+
+  @@index([ads], map: "fk_Photo_Ads1_idx")
+}
+
+model Plan {
+  id      String    @id @unique(map: "id_UNIQUE") @db.Char(36)
+  name    String    @db.VarChar(45)
+  value   Decimal   @db.Decimal(16, 8)
+  days    Int       @db.UnsignedSmallInt
+  uprise  Int       @db.UnsignedSmallInt
+  Invoice Invoice[]
+}
+
+model TokenMail {
+  id         String    @id @unique(map: "id_UNIQUE") @db.Char(36)
+  email      String    @db.VarChar(255)
+  token      String    @db.VarChar(255)
+  type       Int       @db.UnsignedSmallInt
+  status     Int       @db.UnsignedSmallInt
+  details    String?   @db.VarChar(1020)
+  created_at DateTime  @db.DateTime(0)
+  updated_at DateTime? @db.DateTime(0)
+}
+
+model Tube {
+  id         String    @id @unique(map: "id_UNIQUE") @db.Char(36)
+  name       String    @db.VarChar(45)
+  code       Int?      @db.UnsignedSmallInt
+  status     Int       @db.UnsignedSmallInt
+  created_at DateTime  @db.DateTime(0)
+  updated_at DateTime? @db.DateTime(0)
+  Job        Job[]
+}
+
+model Uprise {
+  id String @id @unique(map: "id_UNIQUE") @db.Char(36)
+}
+
+model User {
+  id             String           @id @unique(map: "id_UNIQUE") @db.Char(36)
+  email          String           @unique(map: "email_UNIQUE") @db.VarChar(255)
+  password       String           @db.VarChar(255)
+  status         Int              @db.UnsignedSmallInt
+  type           Int              @db.UnsignedSmallInt
+  attempt_login  Int              @db.UnsignedSmallInt
+  created_at     DateTime         @db.DateTime(0)
+  updated_at     DateTime?        @db.DateTime(0)
+  Ads            Ads[]
+  LoginStatement LoginStatement[]
+}

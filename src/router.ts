@@ -36,6 +36,18 @@ class Router{
             UserController.confirmationRegister
         );
 
+        express
+        .route('/user/auth')
+        .post(
+            UserController.auth
+        );
+
+        express
+        .route('/user/isAuthenticated')
+        .post(
+            UserController.isAuthenticated
+        );
+
     }
 
 } export default Router;

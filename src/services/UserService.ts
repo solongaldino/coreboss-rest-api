@@ -1,5 +1,5 @@
 import { BASE_URL_FRONT_END } from '../configs/GlobalConfig';
-import { ConfirmationRegisterDto, RegisterDto } from '../dtos/services/UserServiceDto';
+import { AuthDto, ConfirmationRegisterDto, RegisterDto } from '../dtos/services/UserServiceDto';
 import { TokenMailStatus } from '../enums/TokenMailStatus';
 import { TokenMailType } from '../enums/TokenMailType';
 import { UserStatus } from '../enums/UserStatus';
@@ -7,6 +7,7 @@ import { UserType } from '../enums/UserType';
 import CryptoPassword from '../utils/CryptoPassword';
 import Token from '../utils/Token';
 import UID from '../utils/UID';
+import AuthJwtService from './AuthJwtService';
 import prisma from './PrismaService';
 
 class UserService{
@@ -138,6 +139,25 @@ class UserService{
         if(!transaction) throw new Error("Transaction fail");
 
         return transaction;
+    }
+
+    async auth(obj: AuthDto){
+
+        const user = await this.getByEmail(obj.email);
+        if(!!!user) throw new Error("E-mail não encontrado");
+
+        const isValidPassword = CryptoPassword.comparePassword(obj.password, user.password);
+        if(!isValidPassword) throw new Error("Senha incorreta");
+
+        const xAccessToken = AuthJwtService.login({
+            id: user.id
+        });
+
+        return xAccessToken;
+    }
+
+    async isAuthenticated(token: string){
+        return AuthJwtService.isAuthenticated(token);
     }
 
     async passwordRecoveryRequest(){

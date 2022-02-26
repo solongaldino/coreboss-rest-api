@@ -18,4 +18,9 @@ class Token{
         }
     }
 
+    isExpired(date: Date){
+        
+        return date < new Date() ? true : false;
+    }
+
 } export default new Token;

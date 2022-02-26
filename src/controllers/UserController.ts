@@ -23,7 +23,10 @@ class UserController {
 
         try {
 
-            await UserService.create(req.body.email);
+            await UserService.register({
+                email: req.body.email,
+                password: req.body.password,
+            });
 
             return res.send({"message": "ok"});
             
@@ -36,7 +39,9 @@ class UserController {
 
         try {
 
-            await UserService.confirmationRegister(req.body.email);
+            await UserService.confirmationRegister({
+                token: req.body.token
+            });
 
             return res.send({"message": "ok"});
             

@@ -1,5 +1,5 @@
 import { BASE_URL_FRONT_END } from '../configs/GlobalConfig';
-import { ConfirmationRegisterDto, CreateUserDto, RegisterDto } from '../dtos/services/UserServiceDto';
+import { ConfirmationRegisterDto, RegisterDto } from '../dtos/services/UserServiceDto';
 import { TokenMailStatus } from '../enums/TokenMailStatus';
 import { TokenMailType } from '../enums/TokenMailType';
 import { UserStatus } from '../enums/UserStatus';
@@ -27,20 +27,6 @@ class UserService{
         });
     }
 
-    async create(obj: CreateUserDto) {
-        return await prisma.user.create({
-            data:{
-                id: UID.createDefault(),
-                email: obj.email,
-                password: obj.password,
-                status: UserStatus.ACTIVE,
-                type: obj.type,
-                attempt_login: 0,
-                created_at: new Date()
-            }
-        });
-    }
-
     async updatePassworById(id: string, password: string){
         // encriptar nova senha
         // verificar senha antiga        
@@ -55,6 +41,10 @@ class UserService{
     }
 
     async register(obj: RegisterDto){
+
+        const user = await this.getByEmail(obj.email);
+
+        if(!!user) throw new Error("E-mail encontra-se em uso");
         
         const passwordEc = CryptoPassword.generationHash(obj.password);
 
@@ -81,7 +71,7 @@ class UserService{
         
     }
 
-    async confirmationRegister(obj: ConfirmationRegisterDto){        
+    async confirmationRegister(obj: ConfirmationRegisterDto){      
         
         const tokenMail = await prisma.tokenMail.findUnique({
             where:{
@@ -93,9 +83,7 @@ class UserService{
 
         if(tokenMail.status == TokenMailStatus.EXPIRED) throw new Error("Token expirado");
 
-        const now = new Date();
-
-        if(tokenMail.token_expiration < now){
+        if(Token.isExpired(tokenMail.token_expiration)){
 
             await prisma.tokenMail.update({
                 where:{

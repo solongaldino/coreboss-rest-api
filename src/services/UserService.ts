@@ -1,5 +1,5 @@
 import { BASE_URL_FRONT_END } from '../configs/GlobalConfig';
-import { AuthDto, ConfirmationRegisterDto, ConfirmPasswordRecoveryDto, RegisterDto } from '../dtos/services/UserServiceDto';
+import { AuthDto, ConfirmationRegisterDto, ConfirmPasswordRecoveryDto, LogoutDto, RegisterDto } from '../dtos/services/UserServiceDto';
 import { TokenMailStatus } from '../enums/TokenMailStatus';
 import { TokenMailType } from '../enums/TokenMailType';
 import { UserStatus } from '../enums/UserStatus';
@@ -240,6 +240,25 @@ class UserService{
         if(!transaction) throw new Error("Transaction fail");
 
         return xAccessToken;
+    }
+
+    async logout(obj: LogoutDto){
+
+        const userId = "";
+        
+        const user = await this.getById(userId);
+        if(!!!user) throw new Error("User not found");
+
+        const response = await prisma.jwtBlackList.create({
+            data:{
+                id: UID.createDefault(),
+                user: user.id,
+                token: obj.token,
+                created_at: new Date()
+            }
+        });
+
+        if(!response) throw new Error("Logout fail");
     }
 
     async isAuthenticated(token: string){

@@ -66,6 +66,21 @@ class UserController {
         }        
     }
 
+    public async logout(req: Request, res: Response): Promise<Response>{
+
+        try {
+
+            await UserService.logout({
+                token: req.body.token
+            });
+
+            return res.send({message: "ok"});
+            
+        } catch (error: any) {
+            return res.status(400).send({"error": error.message});
+        }        
+    }
+
     public async isAuthenticated(req: Request, res: Response): Promise<Response>{
         try {
 

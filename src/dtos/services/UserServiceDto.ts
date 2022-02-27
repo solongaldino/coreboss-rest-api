@@ -14,6 +14,10 @@ export interface AuthDto {
     password: string;
 }
 
+export interface LogoutDto {
+    token: string;
+}
+
 export interface ConfirmPasswordRecoveryDto {
     token: string;
     password: string;

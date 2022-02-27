@@ -162,5 +162,16 @@ model User {
   created_at     DateTime         @db.DateTime(0)
   updated_at     DateTime?        @db.DateTime(0)
   Ads            Ads[]
+  JwtBlackList   JwtBlackList[]
   LoginStatement LoginStatement[]
+}
+
+model JwtBlackList {
+  id         String   @id @unique(map: "id_UNIQUE") @db.Char(36)
+  user       String   @db.Char(36)
+  token      String   @db.VarChar(600)
+  created_at DateTime @db.DateTime(0)
+  User       User     @relation(fields: [user], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_JwtBlackList_User1")
+
+  @@index([user], map: "fk_JwtBlackList_User1_idx")
 }

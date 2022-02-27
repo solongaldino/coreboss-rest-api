@@ -43,6 +43,12 @@ class Router{
         );
 
         express
+        .route('/user/logout')
+        .post(
+            UserController.logout
+        );
+
+        express
         .route('/user/isAuthenticated')
         .post(
             UserController.isAuthenticated

@@ -90,7 +90,6 @@ model Job {
 model LoginStatement {
   id         String   @id @unique(map: "id_UNIQUE") @db.Char(36)
   user       String   @db.Char(36)
-  ip         String   @db.VarChar(45)
   created_at DateTime @db.DateTime(0)
   User       User     @relation(fields: [user], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_UserLoginStatement_User1")
 

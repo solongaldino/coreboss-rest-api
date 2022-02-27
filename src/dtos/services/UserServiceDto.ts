@@ -13,3 +13,8 @@ export interface AuthDto {
     email: string;
     password: string;
 }
+
+export interface ConfirmPasswordRecoveryDto {
+    token: string;
+    password: string;
+}

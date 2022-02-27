@@ -48,6 +48,24 @@ class Router{
             UserController.isAuthenticated
         );
 
+        express
+        .route('/user/passwordRecoveryRequest')
+        .post(
+            UserController.passwordRecoveryRequest
+        );
+
+        express
+        .route('/user/confirmPasswordRecovery')
+        .post(
+            UserController.confirmPasswordRecovery
+        );
+
+        express
+        .route('/user/unlockLogin')
+        .post(
+            UserController.unlockLogin
+        );
+
     }
 
 } export default Router;

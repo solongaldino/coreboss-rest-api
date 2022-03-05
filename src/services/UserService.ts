@@ -398,4 +398,14 @@ class UserService{
         if(!transaction) throw new Error("Transaction fail");
     }
 
+    async updatePassword(password: string){
+        throw new Error("Serviço em manutenção");
+        
+    }
+
+    async cancelAccount(password: string){
+        throw new Error("Serviço em manutenção");
+        
+    }
+
 }export default new UserService;

@@ -72,6 +72,18 @@ class Router{
             UserController.unlockLogin
         );
 
+        express
+        .route('/user/updatePassword')
+        .post(
+            UserController.updatePassword
+        );
+
+        express
+        .route('/user/cancelAccount')
+        .post(
+            UserController.cancelAccount
+        );
+
     }
 
 } export default Router;

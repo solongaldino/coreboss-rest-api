@@ -132,10 +132,14 @@ class UserController {
         }
     }
 
-    public async updatePassword(req: Request, res: Response): Promise<Response>{
+    public async updatePasswordById(req: Request, res: Response): Promise<Response>{
         try {
 
-            await UserService.updatePassword(req.body.password);
+            await UserService.updatePasswordById({
+                password: req.body.password,
+                newPassword: req.body.newPassword,
+                userId: req.body.userId
+            });
 
             return res.send({message: "ok"});
             
@@ -144,10 +148,13 @@ class UserController {
         }
     }
 
-    public async cancelAccount(req: Request, res: Response): Promise<Response>{
+    public async cancelAccountRequest(req: Request, res: Response): Promise<Response>{
         try {
 
-            await UserService.cancelAccount(req.body.password);
+            await UserService.cancelAccountRequest({
+                password: req.body.password,
+                userId: req.body.userId
+            });
 
             return res.send({message: "ok"});
             

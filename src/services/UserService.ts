@@ -1,5 +1,5 @@
 import { BASE_URL_FRONT_END } from '../configs/GlobalConfig';
-import { AuthDto, ConfirmationRegisterDto, ConfirmPasswordRecoveryDto, LogoutDto, RegisterDto } from '../dtos/services/UserServiceDto';
+import { AuthDto, CancelAccountRequestDto, ConfirmationRegisterDto, ConfirmPasswordRecoveryDto, LogoutDto, RegisterDto, UpdatePasswordDto } from '../dtos/services/UserServiceDto';
 import { TokenMailStatus } from '../enums/TokenMailStatus';
 import { TokenMailType } from '../enums/TokenMailType';
 import { UserStatus } from '../enums/UserStatus';
@@ -13,37 +13,19 @@ import prisma from './PrismaService';
 class UserService{
 
     async getById(val: string){        
-        return await prisma.user.findUnique({
+        const user = await prisma.user.findUnique({
             where:{
                 id: val,
             }
         });
+        if(!!!user) throw new Error("Usuário não encontrado");
+        return user;
     }
 
     async getByEmail(val: string){        
         return await prisma.user.findUnique({
             where:{
                 email: val,
-            }
-        });
-    }
-
-    async updatePassworById(id: string, password: string){
-
-        const user = await this.getById(id);
-        if(!!!user) throw new Error("Usuário não encontrado");
-
-        const isValidPassword = CryptoPassword.comparePassword(password, user.password);
-        if(!isValidPassword) throw new Error("Senha incorreta");
-        
-        const passwordEc = CryptoPassword.generationHash(password);
-
-        return await prisma.user.update({
-            where:{
-                id: id,
-            },
-            data:{
-                password: passwordEc,
             }
         });
     }
@@ -210,7 +192,7 @@ class UserService{
 
             if(!updateAttemptLoginUser) throw new Error("Error ao salvar informações");
 
-            throw new Error("Senha incorreta, restam apenas "+ (maxAttempt - attemptLogin) +" tentativas para sua contas ser bloqueada.");
+            throw new Error("Senha incorreta, restam apenas "+ (maxAttempt - attemptLogin) +" tentativas para sua conta ser bloqueada.");
 
         }
 
@@ -247,7 +229,6 @@ class UserService{
         const userId = "";
         
         const user = await this.getById(userId);
-        if(!!!user) throw new Error("User not found");
 
         const response = await prisma.jwtBlackList.create({
             data:{
@@ -398,14 +379,36 @@ class UserService{
         if(!transaction) throw new Error("Transaction fail");
     }
 
-    async updatePassword(password: string){
-        throw new Error("Serviço em manutenção");
+    async updatePasswordById(obj: UpdatePasswordDto){
+        
+        const user = await this.getById(obj.userId);
+
+        const isValidPassword = CryptoPassword.comparePassword(obj.password, user.password);
+        if(!isValidPassword) throw new Error("Senha incorreta");
+        
+        const passwordEc = CryptoPassword.generationHash(obj.newPassword);
+
+        return await prisma.user.update({
+            where:{
+                id: obj.userId,
+            },
+            data:{
+                password: passwordEc,
+            }
+        });
+    }
+
+    async cancelAccountRequest(obj: CancelAccountRequestDto){
+        
+        const user = await this.getById(obj.userId);
+
+        const isValidPassword = CryptoPassword.comparePassword(obj.password, user.password);
+        if(!isValidPassword) throw new Error("Senha incorreta");
         
     }
 
-    async cancelAccount(password: string){
-        throw new Error("Serviço em manutenção");
-        
+    async confirmCancelAccount(){
+
     }
 
 }export default new UserService;

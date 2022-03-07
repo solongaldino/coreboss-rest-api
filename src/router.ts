@@ -2,6 +2,7 @@ import express from 'express';
 import AdsController from './controllers/AdsController';
 import IndexController from './controllers/IndexController';
 import UserController from './controllers/UserController';
+import AuthMiddleware from './middlewares/AuthMiddleware';
 
 class Router{
 
@@ -81,15 +82,17 @@ class Router{
         );
 
         express
-        .route('/user/updatePassword')
+        .route('/user/updatePasswordById')
         .post(
-            UserController.updatePassword
+            AuthMiddleware.isAuthenticated,
+            UserController.updatePasswordById
         );
 
         express
-        .route('/user/cancelAccount')
+        .route('/user/cancelAccountRequest')
         .post(
-            UserController.cancelAccount
+            AuthMiddleware.isAuthenticated,
+            UserController.cancelAccountRequest
         );
 
     }

@@ -1,10 +1,10 @@
 import jwt from 'jsonwebtoken';
 import { EXPIRES_JWT_TOKEN_IN_SECONDS, SECRET_JWT } from '../configs/GlobalConfig';
+import prisma from './PrismaService';
 
 export interface AuthJwtPayload{
     id: string,
     userType?: AuthJwtUserType.USER
-
 }
 
 export enum AuthJwtUserType{
@@ -26,8 +26,18 @@ class AuthJwtService{
         return this.generationToken(params);
     }
 
-    public isAuthenticated(token: string){
+    public isAuthenticated(token: string)
+    {
         return jwt.verify(token, SECRET_JWT);
+    }
+
+    public async isBlackList(token: string){
+        const result = await prisma.jwtBlackList.findFirst({
+            where:{
+                token: token
+            }
+        });        
+        return !!result ? true : false;
     }
 
 } export default new AuthJwtService;

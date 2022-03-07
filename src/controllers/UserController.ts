@@ -3,7 +3,7 @@ import UserService from '../services/UserService';
 
 class UserController {
 
-    public async  isRegisteredEmail(req: Request, res: Response): Promise<Response>{
+    public async isRegisteredEmail(req: Request, res: Response): Promise<Response>{
 
         try {
 
@@ -19,7 +19,7 @@ class UserController {
         }        
     }
 
-    public async  register(req: Request, res: Response): Promise<Response>{
+    public async register(req: Request, res: Response): Promise<Response>{
 
         try {
 
@@ -35,7 +35,7 @@ class UserController {
         }        
     }
 
-    public async  confirmationRegister(req: Request, res: Response): Promise<Response>{
+    public async confirmationRegister(req: Request, res: Response): Promise<Response>{
 
         try {
 

@@ -1,4 +1,5 @@
 import express from 'express';
+import AdsController from './controllers/AdsController';
 import IndexController from './controllers/IndexController';
 import UserController from './controllers/UserController';
 
@@ -15,6 +16,13 @@ class Router{
         .route('/')
         .get(
             IndexController.index
+        );
+
+        /* AdsController */
+        express
+        .route('/ads/getById')
+        .post(
+            AdsController.getById
         );
 
         /* UserController */

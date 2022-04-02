@@ -8,51 +8,71 @@ datasource db {
 }
 
 model Ads {
-  id          String    @id @unique(map: "id_UNIQUE") @db.Char(36)
-  user        String    @db.Char(36)
-  status      String    @db.VarChar(45)
-  token       String    @db.VarChar(32)
-  spotlighted Boolean
-  created_at  DateTime  @db.DateTime(0)
-  updated_at  DateTime? @db.DateTime(0)
-  state       String?   @db.VarChar(45)
-  city        String?   @db.VarChar(45)
-  name        String?   @db.VarChar(45)
-  whatsapp    String?   @db.VarChar(45)
-  age         String?   @db.VarChar(45)
-  hair        String?   @db.VarChar(45)
-  height      String?   @db.VarChar(45)
-  weight      String?   @db.VarChar(45)
-  mannequin   String?   @db.VarChar(45)
-  foot        String?   @db.VarChar(45)
-  eyes        String?   @db.VarChar(45)
-  schedule    String?   @db.VarChar(45)
-  price       String?   @db.VarChar(45)
-  description String?   @db.VarChar(45)
-  attendance  String?   @db.VarChar(45)
-  own_place   String?   @db.VarChar(45)
-  cred_card   String?   @db.VarChar(45)
-  debit_card  String?   @db.VarChar(45)
-  code        String?   @db.VarChar(45)
-  photos      String?   @db.VarChar(45)
-  uprised_at  DateTime? @db.DateTime(0)
-  User        User      @relation(fields: [user], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_Ads_User1")
-  AdsTag      AdsTag[]
-  Invoice     Invoice[]
-  Photo       Photo[]
+  id                      String    @id @unique(map: "id_UNIQUE") @db.Char(36)
+  user                    String    @db.Char(36)
+  status                  String    @db.VarChar(45)
+  genre                   String    @db.VarChar(45)
+  token                   String    @db.VarChar(32)
+  created_at              DateTime  @db.DateTime(0)
+  updated_at              DateTime? @db.DateTime(0)
+  spotlighted             Boolean?
+  state                   String?   @db.VarChar(45)
+  city                    String?   @db.VarChar(45)
+  name                    String?   @db.VarChar(45)
+  whatsapp                String?   @db.VarChar(45)
+  age                     String?   @db.VarChar(45)
+  hair                    String?   @db.VarChar(45)
+  height                  String?   @db.VarChar(45)
+  weight                  String?   @db.VarChar(45)
+  mannequin               String?   @db.VarChar(45)
+  foot                    String?   @db.VarChar(45)
+  eyes                    String?   @db.VarChar(45)
+  schedule                String?   @db.VarChar(45)
+  price                   String?   @db.VarChar(45)
+  short_description       String?   @db.VarChar(200)
+  description             String?   @db.Text
+  own_place               Boolean?
+  cred_card               Boolean?
+  debit_card              Boolean?
+  pix                     Boolean?
+  bitcoin                 Boolean?
+  code                    String?   @db.VarChar(45)
+  uprised_at              DateTime? @db.DateTime(0)
+  kiss_on_the_mouth       Boolean?
+  doubles                 Boolean?
+  ejaculation_in_the_body Boolean?
+  facial_ejaculation      Boolean?
+  costumes_and_disguises  Boolean?
+  erotic_massage          Boolean?
+  little_girlfriend       Boolean?
+  oral_until_the_end      Boolean?
+  blowjob_to_the_end      Boolean?
+  blowjob_with_condom     Boolean?
+  blowjob_without_condom  Boolean?
+  pse                     Boolean?
+  anal_sex                Boolean?
+  black_kiss              Boolean?
+  golden_rain             Boolean?
+  black_rain              Boolean?
+  fetishism               Boolean?
+  deep_throat             Boolean?
+  hard_sado               Boolean?
+  soft_sado               Boolean?
+  squirting               Boolean?
+  strap_on                Boolean?
+  at_home                 Boolean?
+  with_apartment          Boolean?
+  hotel                   Boolean?
+  swing_club              Boolean?
+  bachelor_party          Boolean?
+  parties_and_events      Boolean?
+  romantic_dinner         Boolean?
+  trips                   Boolean?
+  User                    User      @relation(fields: [user], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_Ads_User1")
+  Invoice                 Invoice[]
+  Photo                   Photo[]
 
   @@index([user], map: "fk_Ads_User1_idx")
-}
-
-model AdsTag {
-  id         String   @id @unique(map: "id_UNIQUE") @db.Char(36)
-  ads        String   @db.Char(36)
-  name       String   @db.VarChar(45)
-  type       String   @db.VarChar(45)
-  created_at DateTime @db.DateTime(0)
-  Ads        Ads      @relation(fields: [ads], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_AdsService_Ads1")
-
-  @@index([ads], map: "fk_AdsService_Ads1_idx")
 }
 
 model Invoice {
@@ -158,6 +178,7 @@ model User {
   password       String           @db.VarChar(255)
   status         String           @db.VarChar(45)
   type           String           @db.VarChar(45)
+  genre          String           @db.VarChar(45)
   attempt_login  Int              @db.UnsignedSmallInt
   created_at     DateTime         @db.DateTime(0)
   updated_at     DateTime?        @db.DateTime(0)

@@ -1,414 +1,461 @@
-import { BASE_URL_FRONT_END } from '../configs/GlobalConfig';
-import { AuthDto, CancelAccountRequestDto, ConfirmationRegisterDto, ConfirmPasswordRecoveryDto, LogoutDto, RegisterDto, UpdatePasswordDto } from '../dtos/services/UserServiceDto';
-import { TokenMailStatus } from '../enums/TokenMailStatus';
-import { TokenMailType } from '../enums/TokenMailType';
-import { UserStatus } from '../enums/UserStatus';
-import { UserType } from '../enums/UserType';
-import CryptoPassword from '../utils/CryptoPassword';
-import Token from '../utils/Token';
-import UID from '../utils/UID';
-import AuthJwtService from './AuthJwtService';
-import prisma from './PrismaService';
+import { BASE_URL_FRONT_END } from "../configs/GlobalConfig";
+import {
+  AuthDto,
+  CancelAccountRequestDto,
+  ConfirmationRegisterDto,
+  ConfirmPasswordRecoveryDto,
+  LogoutDto,
+  RegisterDto,
+  UpdatePasswordDto,
+} from "../dtos/services/UserServiceDto";
+import { TokenMailStatus, TokenMailType } from "../enums/TokenMail";
+import { UserStatus, UserType } from "../enums/User";
+import JwtBlackListRepository from "../repositories/JwtBlackListRepository";
+import CryptoPassword from "../utils/CryptoPassword";
+import Token from "../utils/Token";
+import UID from "../utils/UID";
+import AuthJwtService from "./AuthJwtService";
+import prisma from "./PrismaService";
 
-class UserService{
+class UserService {
+  async getById(val: string) {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: val,
+      },
+    });
+    if (!!!user) throw new Error("Usuário não encontrado");
+    return user;
+  }
 
-    async getById(val: string){        
-        const user = await prisma.user.findUnique({
-            where:{
-                id: val,
-            }
-        });
-        if(!!!user) throw new Error("Usuário não encontrado");
-        return user;
+  async getByEmail(val: string) {
+    return await prisma.user.findUnique({
+      where: {
+        email: val,
+      },
+    });
+  }
+
+  async register(obj: RegisterDto) {
+    const user = await this.getByEmail(obj.email);
+
+    if (!!user) throw new Error("E-mail encontra-se em uso");
+
+    const passwordEc = CryptoPassword.generationHash(obj.password);
+
+    const token = Token.create();
+
+    const tokenMail = await prisma.tokenMail.create({
+      data: {
+        id: UID.createDefault(),
+        email: obj.email,
+        token: token.hash,
+        type: TokenMailType.REGISTER_USER,
+        status: TokenMailStatus.OPEN,
+        details: JSON.stringify({ password: passwordEc }),
+        token_expiration: token.expiration,
+        created_at: new Date(),
+      },
+    });
+
+    if (!tokenMail) throw new Error("Error ao salvar informações");
+
+    const url =
+      BASE_URL_FRONT_END + "/confirmationRegister?token=" + tokenMail.token;
+
+    // Envia e-mail para confirmação do cadastro
+  }
+
+  async confirmationRegister(obj: ConfirmationRegisterDto) {
+    const tokenMail = await prisma.tokenMail.findUnique({
+      where: {
+        token: obj.token,
+      },
+    });
+
+    if (!tokenMail) throw new Error("Token não existe");
+
+    if (tokenMail.status == TokenMailStatus.EXPIRED)
+      throw new Error("Token expirado");
+
+    if (Token.isExpired(tokenMail.token_expiration)) {
+      await prisma.tokenMail.update({
+        where: {
+          id: tokenMail.id,
+        },
+        data: {
+          status: TokenMailStatus.EXPIRED,
+        },
+      });
+
+      throw new Error("Token expirado");
     }
 
-    async getByEmail(val: string){        
-        return await prisma.user.findUnique({
-            where:{
-                email: val,
-            }
+    const userType = (expression: TokenMailType) => {
+      switch (expression) {
+        case TokenMailType.REGISTER_USER:
+          return UserType.CUSTOMER;
+
+        case TokenMailType.REGISTER_ADMIN:
+          return UserType.ADMIN;
+
+        default:
+          throw new Error("Type not found");
+      }
+    };
+
+    if (!tokenMail.details) throw new Error("Password not found");
+
+    const createUser = prisma.user.create({
+      data: {
+        id: UID.createDefault(),
+        email: tokenMail.email,
+        password: JSON.parse(tokenMail.details).password,
+        status: UserStatus.ACTIVE,
+        type: userType(tokenMail.type as TokenMailType),
+        genre: "",
+        attempt_login: 0,
+        created_at: new Date(),
+      },
+    });
+
+    const updateTokenMail = prisma.tokenMail.update({
+      where: {
+        id: tokenMail.id,
+      },
+      data: {
+        status: TokenMailStatus.FINISHED,
+      },
+    });
+
+    const transaction = await prisma.$transaction([
+      createUser,
+      updateTokenMail,
+    ]);
+
+    if (!transaction) throw new Error("Transaction fail");
+
+    return transaction;
+  }
+
+  async auth(obj: AuthDto) {
+    const user = await this.getByEmail(obj.email);
+    if (!!!user) throw new Error("E-mail não encontrado");
+    if (user.status == UserStatus.BLOCKED_ATTEMPT_LOGIN)
+      throw new Error(
+        "Usuário bloqueado devido as varias tentativas de login com senha incorreta, verifique sua caixa de e-mail."
+      );
+
+    const isValidPassword = CryptoPassword.comparePassword(
+      obj.password,
+      user.password
+    );
+
+    if (!isValidPassword) {
+      const attemptLogin = user.attempt_login + 1;
+
+      const maxAttempt = 5;
+
+      if (attemptLogin >= maxAttempt) {
+        const blockUser = prisma.user.update({
+          where: {
+            id: user.id,
+          },
+          data: {
+            attempt_login: attemptLogin,
+            status: UserStatus.BLOCKED_ATTEMPT_LOGIN,
+          },
         });
+
+        const token = Token.create(999999999);
+
+        const tokenMail = prisma.tokenMail.create({
+          data: {
+            id: UID.createDefault(),
+            email: user.email,
+            token: token.hash,
+            type: TokenMailType.BLOCKED_USER_ATTEMPT_LOGIN,
+            status: TokenMailStatus.OPEN,
+            token_expiration: token.expiration,
+            created_at: new Date(),
+          },
+        });
+
+        const transaction = await prisma.$transaction([blockUser, tokenMail]);
+        if (!transaction) throw new Error("Error ao salvar informações");
+
+        const url =
+          BASE_URL_FRONT_END + "/confirmationRegister?token=" + token.hash;
+
+        //Enviar e-mail
+
+        throw new Error(
+          "Usuário bloqueado, mais de " +
+            maxAttempt +
+            " tentativas de acessos com senha incorreta, verifique sua caixa de e-mail"
+        );
+      }
+
+      const updateAttemptLoginUser = await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          attempt_login: attemptLogin,
+        },
+      });
+
+      if (!updateAttemptLoginUser)
+        throw new Error("Error ao salvar informações");
+
+      throw new Error(
+        "Senha incorreta, restam apenas " +
+          (maxAttempt - attemptLogin) +
+          " tentativas para sua conta ser bloqueada."
+      );
     }
 
-    async register(obj: RegisterDto){
+    const xAccessToken = AuthJwtService.login({
+      id: user.id,
+    });
 
-        const user = await this.getByEmail(obj.email);
+    const loginStatement = prisma.loginStatement.create({
+      data: {
+        id: UID.createDefault(),
+        user: user.id,
+        created_at: new Date(),
+      },
+    });
 
-        if(!!user) throw new Error("E-mail encontra-se em uso");
-        
-        const passwordEc = CryptoPassword.generationHash(obj.password);
+    const updateAttemptLoginUser = prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        attempt_login: 0,
+      },
+    });
 
-        const token = Token.create();
+    const transaction = await prisma.$transaction([
+      updateAttemptLoginUser,
+      loginStatement,
+    ]);
 
-        const tokenMail = await prisma.tokenMail.create({
-            data:{
-                id: UID.createDefault(),
-                email: obj.email,
-                token: token.hash,
-                type: TokenMailType.REGISTER_USER,
-                status: TokenMailStatus.OPEN,
-                details: JSON.stringify({ password: passwordEc }),
-                token_expiration: token.expiration,
-                created_at: new Date()
-            }
-        });
+    if (!transaction) throw new Error("Transaction fail");
 
-        if(!tokenMail) throw new Error("Error ao salvar informações");
+    return xAccessToken;
+  }
 
-        const url = BASE_URL_FRONT_END+"/confirmationRegister?token="+tokenMail.token;
-        
-        // Envia e-mail para confirmação do cadastro
-        
+  async logout(obj: LogoutDto) {
+    const userId = obj.userId;
+
+    const user = await this.getById(userId);
+
+    const response = await JwtBlackListRepository.create({
+      data: {
+        id: UID.createDefault(),
+        user: user.id,
+        token: obj.token,
+        created_at: new Date(),
+      },
+    });
+
+    if (!response) throw new Error("Logout fail");
+  }
+
+  async isAuthenticated(token: string) {
+    return AuthJwtService.isAuthenticated(token);
+  }
+
+  async passwordRecoveryRequest(email: string) {
+    const user = await this.getByEmail(email);
+    if (!!!user) throw new Error("E-mail não encontrado");
+
+    const token = Token.create();
+
+    const tokenMail = await prisma.tokenMail.create({
+      data: {
+        id: UID.createDefault(),
+        email: email,
+        token: token.hash,
+        type: TokenMailType.PASSWORD_RECOVERY_REQUEST,
+        status: TokenMailStatus.OPEN,
+        token_expiration: token.expiration,
+        created_at: new Date(),
+      },
+    });
+
+    if (!tokenMail) throw new Error("Error ao salvar informações");
+
+    const url =
+      BASE_URL_FRONT_END + "/update-password?token=" + tokenMail.token;
+
+    // Envia e-mail com instruções e link para formulario de nova senha
+  }
+
+  async confirmPasswordRecovery(obj: ConfirmPasswordRecoveryDto) {
+    const tokenMail = await prisma.tokenMail.findUnique({
+      where: {
+        token: obj.token,
+      },
+    });
+
+    if (!tokenMail) throw new Error("Token não existe");
+
+    if (tokenMail.status == TokenMailStatus.EXPIRED)
+      throw new Error("Token expirado");
+
+    if (Token.isExpired(tokenMail.token_expiration)) {
+      await prisma.tokenMail.update({
+        where: {
+          id: tokenMail.id,
+        },
+        data: {
+          status: TokenMailStatus.EXPIRED,
+        },
+      });
+
+      throw new Error("Token expirado");
     }
 
-    async confirmationRegister(obj: ConfirmationRegisterDto){      
-        
-        const tokenMail = await prisma.tokenMail.findUnique({
-            where:{
-                token: obj.token,
-            }
-        });
+    const user = await this.getByEmail(tokenMail.email);
+    if (!!!user) throw new Error("E-mail não encontrado");
 
-        if(!tokenMail) throw new Error("Token não existe");
+    const passwordEc = CryptoPassword.generationHash(obj.password);
 
-        if(tokenMail.status == TokenMailStatus.EXPIRED) throw new Error("Token expirado");
+    const updatePasswordUser = prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        password: passwordEc,
+      },
+    });
 
-        if(Token.isExpired(tokenMail.token_expiration)){
+    const updateTokenMail = prisma.tokenMail.update({
+      where: {
+        id: tokenMail.id,
+      },
+      data: {
+        status: TokenMailStatus.FINISHED,
+      },
+    });
 
-            await prisma.tokenMail.update({
-                where:{
-                    id: tokenMail.id
-                },
-                data:{
-                    status: TokenMailStatus.EXPIRED
-                }
-            });
+    const transaction = await prisma.$transaction([
+      updatePasswordUser,
+      updateTokenMail,
+    ]);
 
-            throw new Error("Token expirado");
-        }
+    if (!transaction) throw new Error("Transaction fail");
+  }
 
-        const userType = (expression: TokenMailType) => {
-            switch ( expression ) {
-                case TokenMailType.REGISTER_USER:
-                    return UserType.CUSTOMER;
+  async unlockLogin(token: string) {
+    const tokenMail = await prisma.tokenMail.findUnique({
+      where: {
+        token: token,
+      },
+    });
 
-                case TokenMailType.REGISTER_ADMIN:
-                    return UserType.ADMIN;
+    if (!tokenMail) throw new Error("Token não existe");
 
-                default: 
-                    throw new Error("Type not found");
-             }
-        }
+    if (tokenMail.status == TokenMailStatus.EXPIRED)
+      throw new Error("Token expirado");
 
-        if(!tokenMail.details) throw new Error("Password not found");
+    if (Token.isExpired(tokenMail.token_expiration)) {
+      await prisma.tokenMail.update({
+        where: {
+          id: tokenMail.id,
+        },
+        data: {
+          status: TokenMailStatus.EXPIRED,
+        },
+      });
 
-        const createUser = prisma.user.create({
-            data:{
-                id: UID.createDefault(),
-                email: tokenMail.email,
-                password: JSON.parse(tokenMail.details).password,
-                status: UserStatus.ACTIVE,
-                type: userType(tokenMail.type as TokenMailType),
-                attempt_login: 0,
-                created_at: new Date()
-            }
-        });
-
-        const updateTokenMail = prisma.tokenMail.update({
-            where:{
-                id: tokenMail.id
-            },
-            data:{
-                status: TokenMailStatus.FINISHED
-            }
-        });
-        
-        const transaction = await prisma.$transaction([createUser, updateTokenMail]);
-
-        if(!transaction) throw new Error("Transaction fail");
-
-        return transaction;
+      throw new Error("Token expirado");
     }
 
-    async auth(obj: AuthDto){
+    const user = await this.getByEmail(tokenMail.email);
+    if (!!!user) throw new Error("E-mail não encontrado");
 
-        const user = await this.getByEmail(obj.email);
-        if(!!!user) throw new Error("E-mail não encontrado");
-        if(user.status == UserStatus.BLOCKED_ATTEMPT_LOGIN)
-            throw new Error("Usuário bloqueado devido as varias tentativas de login com senha incorreta, verifique sua caixa de e-mail.");
+    const updateUser = prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        attempt_login: 0,
+        status: UserStatus.ACTIVE,
+      },
+    });
 
-        const isValidPassword = CryptoPassword.comparePassword(obj.password, user.password);
-        
-        if(!isValidPassword){
+    const updateTokenMail = prisma.tokenMail.update({
+      where: {
+        id: tokenMail.id,
+      },
+      data: {
+        status: TokenMailStatus.FINISHED,
+      },
+    });
 
-            const attemptLogin = user.attempt_login + 1;
+    const transaction = await prisma.$transaction([
+      updateUser,
+      updateTokenMail,
+    ]);
 
-            const maxAttempt = 5;
+    if (!transaction) throw new Error("Transaction fail");
+  }
 
-            if(attemptLogin >= maxAttempt){
+  async updatePasswordById(obj: UpdatePasswordDto) {
+    const user = await this.getById(obj.userId);
 
-                const blockUser = prisma.user.update({
-                    where:{
-                        id: user.id,
-                    },
-                    data:{
-                        attempt_login: attemptLogin,
-                        status: UserStatus.BLOCKED_ATTEMPT_LOGIN
-                    }
-                });
+    const isValidPassword = CryptoPassword.comparePassword(
+      obj.password,
+      user.password
+    );
+    if (!isValidPassword) throw new Error("Senha incorreta");
 
-                const token = Token.create(999999999);
+    const passwordEc = CryptoPassword.generationHash(obj.newPassword);
 
-                const tokenMail = prisma.tokenMail.create({
-                    data:{
-                        id: UID.createDefault(),
-                        email: user.email,
-                        token: token.hash,
-                        type: TokenMailType.BLOCKED_USER_ATTEMPT_LOGIN,
-                        status: TokenMailStatus.OPEN,
-                        token_expiration: token.expiration,
-                        created_at: new Date()
-                    }
-                });
-                
-                const transaction = await prisma.$transaction([blockUser, tokenMail]);
-                if(!transaction) throw new Error("Error ao salvar informações");
-        
-                const url = BASE_URL_FRONT_END+"/confirmationRegister?token="+token.hash;
+    return await prisma.user.update({
+      where: {
+        id: obj.userId,
+      },
+      data: {
+        password: passwordEc,
+      },
+    });
+  }
 
-                //Enviar e-mail
+  async cancelAccountRequest(obj: CancelAccountRequestDto) {
+    const user = await this.getById(obj.userId);
 
-                throw new Error("Usuário bloqueado, mais de "+maxAttempt+" tentativas de acessos com senha incorreta, verifique sua caixa de e-mail");
-            }
+    const isValidPassword = CryptoPassword.comparePassword(
+      obj.password,
+      user.password
+    );
+    if (!isValidPassword) throw new Error("Senha incorreta");
 
-            const updateAttemptLoginUser = await prisma.user.update({
-                where:{
-                    id: user.id,
-                },
-                data:{
-                    attempt_login: attemptLogin,
-                }
-            });
+    const token = Token.create();
 
-            if(!updateAttemptLoginUser) throw new Error("Error ao salvar informações");
+    const tokenMail = await prisma.tokenMail.create({
+      data: {
+        id: UID.createDefault(),
+        email: user.email,
+        token: token.hash,
+        type: TokenMailType.CANCEL_ACCOUNT_REQUEST,
+        status: TokenMailStatus.OPEN,
+        token_expiration: token.expiration,
+        created_at: new Date(),
+      },
+    });
 
-            throw new Error("Senha incorreta, restam apenas "+ (maxAttempt - attemptLogin) +" tentativas para sua conta ser bloqueada.");
+    if (!tokenMail) throw new Error("Error ao salvar informações");
 
-        }
+    const url =
+      BASE_URL_FRONT_END + "/confirm-cancel-account?token=" + tokenMail.token;
 
-        const xAccessToken = AuthJwtService.login({
-            id: user.id
-        });
+    // Envia e-mail com instruções e link para formulario de nova senha
+  }
 
-        const loginStatement = prisma.loginStatement.create({
-            data:{
-                id: UID.createDefault(),
-                user: user.id,
-                created_at: new Date()
-            }
-        });
-
-        const updateAttemptLoginUser = prisma.user.update({
-            where:{
-                id: user.id,
-            },
-            data:{
-                attempt_login: 0,
-            }
-        });
-
-        const transaction = await prisma.$transaction([updateAttemptLoginUser, loginStatement]);
-
-        if(!transaction) throw new Error("Transaction fail");
-
-        return xAccessToken;
-    }
-
-    async logout(obj: LogoutDto){
-
-        const userId = "";
-        
-        const user = await this.getById(userId);
-
-        const response = await prisma.jwtBlackList.create({
-            data:{
-                id: UID.createDefault(),
-                user: user.id,
-                token: obj.token,
-                created_at: new Date()
-            }
-        });
-
-        if(!response) throw new Error("Logout fail");
-    }
-
-    async isAuthenticated(token: string){
-        return AuthJwtService.isAuthenticated(token);
-    }
-
-    async passwordRecoveryRequest(email: string){
-        
-        const user = await this.getByEmail(email);
-        if(!!!user) throw new Error("E-mail não encontrado");
-
-        const token = Token.create();
-        
-        const tokenMail = await prisma.tokenMail.create({
-            data:{
-                id: UID.createDefault(),
-                email: email,
-                token: token.hash,
-                type: TokenMailType.PASSWORD_RECOVERY_REQUEST,
-                status: TokenMailStatus.OPEN,
-                token_expiration: token.expiration,
-                created_at: new Date()
-            }
-        });
-
-        if(!tokenMail) throw new Error("Error ao salvar informações");
-
-        const url = BASE_URL_FRONT_END+"/update-password?token="+tokenMail.token;
-
-        // Envia e-mail com instruções e link para formulario de nova senha        
-    }
-
-    async confirmPasswordRecovery(obj: ConfirmPasswordRecoveryDto){
-
-        const tokenMail = await prisma.tokenMail.findUnique({
-            where:{
-                token: obj.token,
-            }
-        });
-
-        if(!tokenMail) throw new Error("Token não existe");
-
-        if(tokenMail.status == TokenMailStatus.EXPIRED) throw new Error("Token expirado");
-
-        if(Token.isExpired(tokenMail.token_expiration)){
-
-            await prisma.tokenMail.update({
-                where:{
-                    id: tokenMail.id
-                },
-                data:{
-                    status: TokenMailStatus.EXPIRED
-                }
-            });
-
-            throw new Error("Token expirado");
-        }
-
-        const user = await this.getByEmail(tokenMail.email);
-        if(!!!user) throw new Error("E-mail não encontrado");
-        
-        const passwordEc = CryptoPassword.generationHash(obj.password);
-        
-        const updatePasswordUser = prisma.user.update({
-            where:{
-                id: user.id,
-            },
-            data:{
-                password: passwordEc,
-            }
-        });
-
-        const updateTokenMail = prisma.tokenMail.update({
-            where:{
-                id: tokenMail.id
-            },
-            data:{
-                status: TokenMailStatus.FINISHED
-            }
-        });
-        
-        const transaction = await prisma.$transaction([updatePasswordUser, updateTokenMail]);
-
-        if(!transaction) throw new Error("Transaction fail");
-    }
-
-    async unlockLogin(token: string){
-
-        const tokenMail = await prisma.tokenMail.findUnique({
-            where:{
-                token: token,
-            }
-        });
-
-        if(!tokenMail) throw new Error("Token não existe");
-
-        if(tokenMail.status == TokenMailStatus.EXPIRED) throw new Error("Token expirado");
-
-        if(Token.isExpired(tokenMail.token_expiration)){
-
-            await prisma.tokenMail.update({
-                where:{
-                    id: tokenMail.id
-                },
-                data:{
-                    status: TokenMailStatus.EXPIRED
-                }
-            });
-
-            throw new Error("Token expirado");
-        }
-
-        const user = await this.getByEmail(tokenMail.email);
-        if(!!!user) throw new Error("E-mail não encontrado");
-
-        const updateUser = prisma.user.update({
-            where:{
-                id: user.id,
-            },
-            data:{
-                attempt_login: 0,
-                status: UserStatus.ACTIVE
-            }
-        });
-
-        const updateTokenMail = prisma.tokenMail.update({
-            where:{
-                id: tokenMail.id
-            },
-            data:{
-                status: TokenMailStatus.FINISHED
-            }
-        });
-        
-        const transaction = await prisma.$transaction([updateUser, updateTokenMail]);
-
-        if(!transaction) throw new Error("Transaction fail");
-    }
-
-    async updatePasswordById(obj: UpdatePasswordDto){
-        
-        const user = await this.getById(obj.userId);
-
-        const isValidPassword = CryptoPassword.comparePassword(obj.password, user.password);
-        if(!isValidPassword) throw new Error("Senha incorreta");
-        
-        const passwordEc = CryptoPassword.generationHash(obj.newPassword);
-
-        return await prisma.user.update({
-            where:{
-                id: obj.userId,
-            },
-            data:{
-                password: passwordEc,
-            }
-        });
-    }
-
-    async cancelAccountRequest(obj: CancelAccountRequestDto){
-        
-        const user = await this.getById(obj.userId);
-
-        const isValidPassword = CryptoPassword.comparePassword(obj.password, user.password);
-        if(!isValidPassword) throw new Error("Senha incorreta");
-        
-    }
-
-    async confirmCancelAccount(){
-
-    }
-
-}export default new UserService;
+  async confirmCancelAccount(token: string) {}
+}
+export default new UserService;

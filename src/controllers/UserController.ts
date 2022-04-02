@@ -71,7 +71,8 @@ class UserController {
         try {
 
             await UserService.logout({
-                token: req.body.token
+                token: req.body.token,
+                userId: req.body.userId
             });
 
             return res.send({message: "ok"});

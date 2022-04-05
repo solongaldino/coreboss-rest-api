@@ -36,36 +36,6 @@ class UserService {
     });
   }
 
-  async register(obj: RegisterDto) {
-    const user = await this.getByEmail(obj.email);
-
-    if (!!user) throw new Error("E-mail encontra-se em uso");
-
-    const passwordEc = CryptoPassword.generationHash(obj.password);
-
-    const token = Token.create();
-
-    const tokenMail = await prisma.tokenMail.create({
-      data: {
-        id: UID.createDefault(),
-        email: obj.email,
-        token: token.hash,
-        type: TokenMailType.REGISTER_USER,
-        status: TokenMailStatus.OPEN,
-        details: JSON.stringify({ password: passwordEc }),
-        token_expiration: token.expiration,
-        created_at: new Date(),
-      },
-    });
-
-    if (!tokenMail) throw new Error("Error ao salvar informações");
-
-    const url =
-      BASE_URL_FRONT_END + "/confirmationRegister?token=" + tokenMail.token;
-
-    // Envia e-mail para confirmação do cadastro
-  }
-
   async confirmationRegister(obj: ConfirmationRegisterDto) {
     const tokenMail = await prisma.tokenMail.findUnique({
       where: {
@@ -458,4 +428,4 @@ class UserService {
 
   async confirmCancelAccount(token: string) {}
 }
-export default new UserService;
+export default new UserService();

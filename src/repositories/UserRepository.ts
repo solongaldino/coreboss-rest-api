@@ -2,7 +2,7 @@ import { Prisma, User } from "@prisma/client";
 import { prisma } from "./BaseRepository";
 
 class UserRepository {
-  findById(param: User['id']) {
+  findById(param: User["id"]) {
     return prisma.user.findUnique({
       where: {
         id: param,
@@ -10,7 +10,7 @@ class UserRepository {
     });
   }
 
-  findByEmail(param: User['email']) {
+  findByEmail(param: User["email"]) {
     return prisma.user.findUnique({
       where: {
         email: param,
@@ -31,4 +31,4 @@ class UserRepository {
   }
 }
 
-export default new UserRepository;
+export default UserRepository;

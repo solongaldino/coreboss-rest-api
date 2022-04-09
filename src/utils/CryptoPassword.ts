@@ -9,4 +9,4 @@ class CryptoPassword {
     return bcrypt.compareSync(password, hash);
   }
 }
-export default new CryptoPassword();
+export default CryptoPassword;

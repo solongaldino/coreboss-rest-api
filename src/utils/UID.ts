@@ -1,10 +1,14 @@
-import { uid } from 'uid';
-import { UID_LENGTH } from '../configs/GlobalConfig';
+import { uid } from "uid";
 
-class UID{
+const uidLenght = () => {
+  const envValue = process.env.UID_LENGTH;
+  if (!envValue) return 36;
+  return +envValue;
+};
 
-    createDefault(){
-        return uid(UID_LENGTH);
-    }
-
-} export default new UID;
+class UID {
+  create(lenght = uidLenght()) {
+    return uid(lenght);
+  }
+}
+export default UID;

@@ -1,11 +1,10 @@
-import { PrismaClient } from "@prisma/client";
-
-export const prisma = new PrismaClient();
+import { PrismaPromise } from "@prisma/client";
+import { prisma } from "../providers";
 
 class BaseRepository {
-  async transaction() {
-    return prisma.$transaction;
+  async transaction(data: PrismaPromise<any>[]) {
+    return prisma.$transaction(data);
   }
 }
 
-export default new BaseRepository();
+export default BaseRepository;

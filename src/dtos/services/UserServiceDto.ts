@@ -2,11 +2,6 @@ export interface ConfirmationRegisterDto {
   token: string;
 }
 
-export interface AuthDto {
-  email: string;
-  password: string;
-}
-
 export interface LogoutDto {
   token: string;
   userId: string;

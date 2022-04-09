@@ -1,30 +1,27 @@
-import { BASE_URL_FRONT_END } from "../../configs/GlobalConfig";
 import { TokenMailStatus, TokenMailType } from "../../enums/TokenMail";
-import TokenMailRepository from "../../repositories/TokenMailRepository";
-import UserRepository from "../../repositories/UserRepository";
-import ApiError from "../../utils/ApiError";
-import CryptoPassword from "../../utils/CryptoPassword";
-import Token from "../../utils/Token";
-import UID from "../../utils/UID";
+import { TokenMailRepository, UserRepository } from "../../repositories";
+import { ApiError, CryptoPassword, Token, UID } from "../../utils";
 import { IRegisterUserUseCaseDTO } from "./IRegisterUserUseCaseDTO";
-
 class RegisterUserUseCase {
   constructor(
     private userRepository: UserRepository,
-    private tokenMailRepository: TokenMailRepository
+    private tokenMailRepository: TokenMailRepository,
+    private cryptoPassword: CryptoPassword,
+    private tokenUtil: Token,
+    private uid: UID
   ) {}
   async run(data: IRegisterUserUseCaseDTO) {
     const user = await this.userRepository.findByEmail(data.email);
 
     if (!!user) new ApiError(401, "E-mail encontra-se em uso");
 
-    const passwordEc = CryptoPassword.generationHash(data.password);
+    const passwordEc = this.cryptoPassword.generationHash(data.password);
 
-    const token = Token.create();
+    const token = this.tokenUtil.create();
 
     const tokenMail = await this.tokenMailRepository.create({
       data: {
-        id: UID.createDefault(),
+        id: this.uid.create(),
         email: data.email,
         token: token.hash,
         type: TokenMailType.REGISTER_USER,
@@ -38,7 +35,9 @@ class RegisterUserUseCase {
     if (!tokenMail) new ApiError(400, "Error ao salvar informações");
 
     const url =
-      BASE_URL_FRONT_END + "/confirmationRegister?token=" + tokenMail.token;
+      process.env.BASE_URL_FRONT_END +
+      "/confirmationRegister?token=" +
+      tokenMail.token;
 
     // Envia e-mail para confirmação do cadastro
   }

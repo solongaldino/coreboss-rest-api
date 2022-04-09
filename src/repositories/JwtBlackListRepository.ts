@@ -1,10 +1,17 @@
-import { Prisma } from "@prisma/client";
-import { prisma } from "./BaseRepository";
+import { JwtBlackList, Prisma } from "@prisma/client";
+import { prisma } from "../providers";
 
 class JwtBlackListRepository {
-  create(data: Prisma.JwtBlackListCreateArgs) {
-    return prisma.jwtBlackList.create(data);
+  findByToken(param: JwtBlackList["token"]) {
+    return prisma.jwtBlackList.findFirst({
+      where: {
+        token: param,
+      },
+    });
+  }
+  create(obj: Prisma.JwtBlackListCreateArgs) {
+    return prisma.jwtBlackList.create(obj);
   }
 }
 
-export default new JwtBlackListRepository;
+export default JwtBlackListRepository;

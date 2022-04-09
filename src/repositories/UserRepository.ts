@@ -1,5 +1,5 @@
 import { Prisma, User } from "@prisma/client";
-import { prisma } from "./BaseRepository";
+import { prisma } from "../providers";
 
 class UserRepository {
   findById(param: User["id"]) {
@@ -18,16 +18,17 @@ class UserRepository {
     });
   }
 
-  update(data: Prisma.UserUpdateArgs) {
-    return prisma.user.update(data);
+  update(obj: Prisma.UserUpdateArgs) {
+    obj.data.updated_at = new Date();
+    return prisma.user.update(obj);
   }
 
-  create(data: Prisma.UserCreateArgs) {
-    return prisma.user.create(data);
+  create(obj: Prisma.UserCreateArgs) {
+    return prisma.user.create(obj);
   }
 
-  delete(data: Prisma.UserDeleteArgs) {
-    return prisma.user.delete(data);
+  delete(obj: Prisma.UserDeleteArgs) {
+    return prisma.user.delete(obj);
   }
 }
 

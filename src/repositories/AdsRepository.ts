@@ -1,8 +1,8 @@
 import { Ads, Prisma } from "@prisma/client";
-import { prisma } from "./BaseRepository";
+import { prisma } from "../providers";
 
 class AdsRepository {
-  findById(param: Ads['id']) {
+  findById(param: Ads["id"]) {
     return prisma.ads.findUnique({
       where: {
         id: param,
@@ -10,17 +10,18 @@ class AdsRepository {
     });
   }
 
-  update(data: Prisma.AdsUpdateArgs) {
-    return prisma.ads.update(data);
+  update(obj: Prisma.AdsUpdateArgs) {
+    obj.data.updated_at = new Date();
+    return prisma.ads.update(obj);
   }
 
-  create(data: Prisma.AdsCreateArgs) {
-    return prisma.ads.create(data);
+  create(obj: Prisma.AdsCreateArgs) {
+    return prisma.ads.create(obj);
   }
 
-  delete(data: Prisma.AdsDeleteArgs) {
-    return prisma.ads.delete(data);
+  delete(obj: Prisma.AdsDeleteArgs) {
+    return prisma.ads.delete(obj);
   }
 }
 
-export default new AdsRepository;
+export default AdsRepository;

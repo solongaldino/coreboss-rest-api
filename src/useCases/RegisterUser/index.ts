@@ -1,17 +1,22 @@
 import { Router } from "express";
-import TokenMailRepository from "../../repositories/TokenMailRepository";
-import UserRepository from "../../repositories/UserRepository";
-import { JoiValidator } from "../../utils/JoiValidator";
+import { TokenMailRepository, UserRepository } from "../../repositories";
+import { CryptoPassword, JoiValidator, Token, UID } from "../../utils";
 import RegisterUserController from "./RegisterUserController";
 import RegisterUserUseCase from "./RegisterUserUseCase";
 import { schema } from "./schema";
 
 const userRepository = new UserRepository();
 const tokenMailRepository = new TokenMailRepository();
+const cryptoPassword = new CryptoPassword();
+const tokenUtil = new Token();
+const uid = new UID();
 
 const registerUserUseCase = new RegisterUserUseCase(
   userRepository,
-  tokenMailRepository
+  tokenMailRepository,
+  cryptoPassword,
+  tokenUtil,
+  uid
 );
 
 const registerUserController = new RegisterUserController(registerUserUseCase);

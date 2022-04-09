@@ -1,26 +1,32 @@
-import { EXPIRATION_TOKEN_MIN_DEFAULT, SECRET_TOKEN } from '../configs/GlobalConfig';
-import crypto from 'crypto';
+import crypto from "crypto";
 
-class Token{
+const secretToken = process.env.SECRET_TOKEN || "df287dfc1406ed2b692e1c2c783bb";
+const expirationTokenMinDefault = () => {
+  const envValue = process.env.EXPIRATION_TOKEN_MIN_DEFAULT;
+  if (!envValue) return 10;
+  return +envValue;
+};
+class Token {
+  create(time = expirationTokenMinDefault()) {
+    const hash = crypto
+      .scryptSync(new Date().toString(), secretToken, 32)
+      .toString("hex");
+    const hash2 = crypto
+      .scryptSync(new Date().toString(), secretToken, 32)
+      .toString("hex");
 
-    create(time = EXPIRATION_TOKEN_MIN_DEFAULT){
+    const date = new Date();
 
-        const hash = crypto.scryptSync(new Date().toString(), SECRET_TOKEN, 32).toString('hex');
-        const hash2 = crypto.scryptSync(new Date().toString(), SECRET_TOKEN, 32).toString('hex');
+    date.setMinutes(date.getMinutes() + time);
 
-        const date = new Date();
+    return {
+      hash: hash + hash2,
+      expiration: date,
+    };
+  }
 
-        date.setMinutes(date.getMinutes() + time);
-
-        return {
-            hash: hash+hash2,
-            expiration: date
-        }
-    }
-
-    isExpired(date: Date){
-        
-        return date < new Date() ? true : false;
-    }
-
-} export default new Token;
+  isExpired(date: Date) {
+    return date < new Date() ? true : false;
+  }
+}
+export default Token;

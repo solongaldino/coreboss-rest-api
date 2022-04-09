@@ -1,5 +1,5 @@
 import { TokenMail, Prisma } from "@prisma/client";
-import { prisma } from "./BaseRepository";
+import { prisma } from "../providers";
 
 class TokenMailRepository {
   findById(param: TokenMail["id"]) {
@@ -10,16 +10,17 @@ class TokenMailRepository {
     });
   }
 
-  update(data: Prisma.TokenMailUpdateArgs) {
-    return prisma.tokenMail.update(data);
+  update(obj: Prisma.TokenMailUpdateArgs) {
+    obj.data.updated_at = new Date();
+    return prisma.tokenMail.update(obj);
   }
 
-  create(data: Prisma.TokenMailCreateArgs) {
-    return prisma.tokenMail.create(data);
+  create(obj: Prisma.TokenMailCreateArgs) {
+    return prisma.tokenMail.create(obj);
   }
 
-  delete(data: Prisma.TokenMailDeleteArgs) {
-    return prisma.tokenMail.delete(data);
+  delete(obj: Prisma.TokenMailDeleteArgs) {
+    return prisma.tokenMail.delete(obj);
   }
 }
 

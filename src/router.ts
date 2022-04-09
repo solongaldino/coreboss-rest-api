@@ -1,6 +1,5 @@
 import express from "express";
 import AdsController from "./controllers/AdsController";
-import IndexController from "./controllers/IndexController";
 import UserController from "./controllers/UserController";
 import AuthMiddleware from "./middlewares/AuthMiddleware";
 
@@ -10,20 +9,10 @@ class Router {
   }
 
   private routes(express: express.Application) {
-    /* IndexController */
-    express.route("/").get(IndexController.index);
-
     /* AdsController */
     express.route("/ads/getById").post(AdsController.getById);
 
     /* UserController */
-    express
-      .route("/user/isRegisteredEmail")
-      .post(UserController.isRegisteredEmail);
-
-    express
-      .route("/user/confirmationRegister")
-      .post(UserController.confirmationRegister);
 
     express.route("/user/logout").post(UserController.logout);
 

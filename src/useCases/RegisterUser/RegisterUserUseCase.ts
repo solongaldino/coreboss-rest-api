@@ -1,7 +1,7 @@
 import { TokenMailStatus, TokenMailType } from "../../enums/TokenMail";
 import { TokenMailRepository, UserRepository } from "../../repositories";
 import { ApiError, CryptoPassword, Token, UID } from "../../utils";
-import { IRegisterUserUseCaseDTO } from "./IRegisterUserUseCaseDTO";
+import IRegisterUserUseCaseDTO from "./IRegisterUserUseCaseDTO";
 class RegisterUserUseCase {
   constructor(
     private userRepository: UserRepository,

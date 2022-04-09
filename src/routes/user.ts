@@ -4,6 +4,10 @@ import {
   confirmationRegisterUserRequestSchema,
 } from "../useCases/ConfirmationRegisterUser";
 import {
+  isRegisteredEmailController,
+  isRegisteredEmailRequestSchema,
+} from "../useCases/IsRegisteredEmail";
+import {
   registerUserController,
   registerUserRequestSchema,
 } from "../useCases/RegisterUser";
@@ -14,6 +18,12 @@ import {
 import { JoiValidator } from "../utils";
 
 const userRouter = Router();
+
+userRouter.post(
+  "/isRegisteredEmail",
+  JoiValidator(isRegisteredEmailRequestSchema),
+  isRegisteredEmailController.handle
+);
 
 userRouter.post(
   "/register",

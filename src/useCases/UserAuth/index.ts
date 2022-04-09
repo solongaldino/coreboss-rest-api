@@ -1,14 +1,13 @@
-import { Router } from "express";
 import {
   BaseRepository,
   LoginStatementRepository,
   TokenMailRepository,
   UserRepository,
 } from "../../repositories";
-import { AuthJwt, CryptoPassword, JoiValidator, Token, UID } from "../../utils";
-import { schema } from "./schema";
+import { AuthJwt, CryptoPassword, Token, UID } from "../../utils";
 import UserAuthController from "./UserAuthController";
 import UserAuthUseCase from "./UserAuthUseCase";
+import userAuthRequestSchema from "./UserAuthRequestSchema";
 
 const userRepository = new UserRepository();
 const tokenMailRepository = new TokenMailRepository();
@@ -32,8 +31,4 @@ const userAuthUseCase = new UserAuthUseCase(
 
 const userAuthController = new UserAuthController(userAuthUseCase);
 
-const userAuthRoute = Router();
-
-userAuthRoute.post("/auth", JoiValidator(schema), userAuthController.handle);
-
-export { userAuthRoute };
+export { userAuthController, userAuthRequestSchema };

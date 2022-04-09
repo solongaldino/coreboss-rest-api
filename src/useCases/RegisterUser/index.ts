@@ -3,7 +3,7 @@ import { TokenMailRepository, UserRepository } from "../../repositories";
 import { CryptoPassword, JoiValidator, Token, UID } from "../../utils";
 import RegisterUserController from "./RegisterUserController";
 import RegisterUserUseCase from "./RegisterUserUseCase";
-import { schema } from "./schema";
+import registerUserRequestSchema from "./RegisterUserRequestSchema";
 
 const userRepository = new UserRepository();
 const tokenMailRepository = new TokenMailRepository();
@@ -21,12 +21,4 @@ const registerUserUseCase = new RegisterUserUseCase(
 
 const registerUserController = new RegisterUserController(registerUserUseCase);
 
-const registerUserRoute = Router();
-
-registerUserRoute.post(
-  "/register",
-  JoiValidator(schema),
-  registerUserController.handle
-);
-
-export { registerUserRoute };
+export { registerUserController, registerUserRequestSchema };

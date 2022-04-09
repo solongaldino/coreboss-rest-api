@@ -13,7 +13,7 @@ class RegisterUserUseCase {
   async run(data: IRegisterUserUseCaseDTO) {
     const user = await this.userRepository.findByEmail(data.email);
 
-    if (!!user) new ApiError(401, "E-mail encontra-se em uso");
+    if (!!user) throw new ApiError(401, "E-mail encontra-se em uso");
 
     const passwordEc = this.cryptoPassword.generationHash(data.password);
 
@@ -32,7 +32,7 @@ class RegisterUserUseCase {
       },
     });
 
-    if (!tokenMail) new ApiError(400, "Error ao salvar informações");
+    if (!tokenMail) throw new ApiError(400, "Error ao salvar informações");
 
     const url =
       process.env.BASE_URL_FRONT_END +

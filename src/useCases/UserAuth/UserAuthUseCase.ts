@@ -6,7 +6,7 @@ import {
   TokenMailRepository,
   UserRepository,
 } from "../../repositories";
-import { AuthJwt, CryptoPassword, Token, UID } from "../../utils";
+import { ApiError, AuthJwt, CryptoPassword, Token, UID } from "../../utils";
 import { IUserAuthUseCaseDTO } from "./IUserAuthUseCaseDTO";
 
 class UserAuthUseCase {
@@ -23,9 +23,10 @@ class UserAuthUseCase {
 
   async run(data: IUserAuthUseCaseDTO) {
     const user = await this.userRepository.findByEmail(data.email);
-    if (!!!user) throw new Error("E-mail não encontrado");
+    if (!!!user) throw new ApiError(404, "E-mail não encontrado");
     if (user.status == UserStatus.BLOCKED_ATTEMPT_LOGIN)
-      throw new Error(
+      throw new ApiError(
+        400,
         "Usuário bloqueado devido as varias tentativas de login com senha incorreta, verifique sua caixa de e-mail."
       );
 
@@ -68,7 +69,8 @@ class UserAuthUseCase {
           blockUser,
           tokenMail,
         ]);
-        if (!transaction) throw new Error("Error ao salvar informações");
+        if (!transaction)
+          throw new ApiError(400, "Error ao salvar informações");
 
         const url =
           process.env.BASE_URL_FRONT_END +
@@ -77,7 +79,8 @@ class UserAuthUseCase {
 
         //Enviar e-mail
 
-        throw new Error(
+        throw new ApiError(
+          400,
           "Usuário bloqueado, mais de " +
             maxAttempt +
             " tentativas de acessos com senha incorreta, verifique sua caixa de e-mail"
@@ -94,9 +97,10 @@ class UserAuthUseCase {
       });
 
       if (!updateAttemptLoginUser)
-        throw new Error("Error ao salvar informações");
+        throw new ApiError(400, "Error ao salvar informações");
 
-      throw new Error(
+      throw new ApiError(
+        400,
         "Senha incorreta, restam apenas " +
           (maxAttempt - attemptLogin) +
           " tentativas para sua conta ser bloqueada."
@@ -129,7 +133,7 @@ class UserAuthUseCase {
       loginStatement,
     ]);
 
-    if (!transaction) throw new Error("Transaction fail");
+    if (!transaction) throw new ApiError(400, "Transaction fail");
 
     return xAccessToken;
   }

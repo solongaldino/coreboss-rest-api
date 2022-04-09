@@ -12,9 +12,9 @@ export default class ApiError extends Error {
 
   static validationError(error: ValidationError) {
     const { details } = error;
-    const detailsList = details.map((i) => i.message);
+    const list = details.map((i) => i.message);
 
-    return new ApiError(422, detailsList.join(" - "));
+    return new ApiError(422, list.join(" - "));
   }
 
   static authorizationError(error: Error) {

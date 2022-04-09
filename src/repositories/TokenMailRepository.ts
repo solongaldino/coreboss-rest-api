@@ -10,6 +10,14 @@ class TokenMailRepository {
     });
   }
 
+  findByToken(param: TokenMail["token"]) {
+    return prisma.tokenMail.findUnique({
+      where: {
+        token: param,
+      },
+    });
+  }
+
   update(obj: Prisma.TokenMailUpdateArgs) {
     obj.data.updated_at = new Date();
     return prisma.tokenMail.update(obj);

@@ -1,5 +1,9 @@
 import { Router } from "express";
 import {
+  confirmationRegisterUserController,
+  confirmationRegisterUserRequestSchema,
+} from "../useCases/ConfirmationRegisterUser";
+import {
   registerUserController,
   registerUserRequestSchema,
 } from "../useCases/RegisterUser";
@@ -15,6 +19,12 @@ userRouter.post(
   "/register",
   JoiValidator(registerUserRequestSchema),
   registerUserController.handle
+);
+
+userRouter.post(
+  "/confirmationRegister",
+  JoiValidator(confirmationRegisterUserRequestSchema),
+  confirmationRegisterUserController.handle
 );
 
 userRouter.post(

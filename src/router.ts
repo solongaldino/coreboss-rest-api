@@ -11,10 +11,6 @@ class Router {
   private routes(express: express.Application) {
     /* AdsController */
     express.route("/ads/getById").post(AdsController.getById);
-
-    /* UserController */
-
-    express.route("/user/isAuthenticated").post(UserController.isAuthenticated);
   }
 }
 export default Router;

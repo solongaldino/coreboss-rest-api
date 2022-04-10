@@ -6,9 +6,9 @@ import {
   UserRepository,
 } from "../../repositories";
 import { ApiError, Token, UID } from "../../utils";
-import IConfirmationRegisterUserUseCaseDTO from "./IConfirmationRegisterUserUseCaseDTO";
+import IConfirmationRegisterUseCaseDTO from "./IConfirmationRegisterUseCaseDTO";
 
-class ConfirmationRegisterUserUseCase {
+class ConfirmationRegisterUseCase {
   constructor(
     private userRepository: UserRepository,
     private tokenMailRepository: TokenMailRepository,
@@ -17,7 +17,7 @@ class ConfirmationRegisterUserUseCase {
     private uid: UID
   ) {}
 
-  async run(obj: IConfirmationRegisterUserUseCaseDTO) {
+  async run(obj: IConfirmationRegisterUseCaseDTO) {
     const tokenMail = await this.tokenMailRepository.findByToken(obj.token);
 
     if (!tokenMail) throw new ApiError(400, "Token não existe");
@@ -85,4 +85,4 @@ class ConfirmationRegisterUserUseCase {
     return transaction;
   }
 }
-export default ConfirmationRegisterUserUseCase;
+export default ConfirmationRegisterUseCase;

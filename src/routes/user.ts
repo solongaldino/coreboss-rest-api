@@ -1,8 +1,8 @@
 import { Router } from "express";
 import {
-  confirmationRegisterUserController,
-  confirmationRegisterUserRequestSchema,
-} from "../useCases/ConfirmationRegisterUser";
+  confirmationRegisterController,
+  confirmationRegisterRequestSchema,
+} from "../useCases/ConfirmationRegister";
 import {
   confirmPasswordRecoveryController,
   confirmPasswordRecoveryRequestSchema,
@@ -16,9 +16,9 @@ import {
   passworRecoveryController,
 } from "../useCases/PasswordRecovery";
 import {
-  registerUserController,
-  registerUserRequestSchema,
-} from "../useCases/RegisterUser";
+  registerController,
+  registerRequestSchema,
+} from "../useCases/Register";
 import { authController, authRequestSchema } from "../useCases/Auth";
 import { logoutController, logoutRequestSchema } from "../useCases/Logout";
 import { JoiValidator } from "../utils";
@@ -33,14 +33,14 @@ userRouter.post(
 
 userRouter.post(
   "/register",
-  JoiValidator(registerUserRequestSchema),
-  registerUserController.handle
+  JoiValidator(registerRequestSchema),
+  registerController.handle
 );
 
 userRouter.post(
   "/confirmationRegister",
-  JoiValidator(confirmationRegisterUserRequestSchema),
-  confirmationRegisterUserController.handle
+  JoiValidator(confirmationRegisterRequestSchema),
+  confirmationRegisterController.handle
 );
 
 userRouter.post(

@@ -1,8 +1,8 @@
 import { TokenMailStatus, TokenMailType } from "../../enums/TokenMail";
 import { TokenMailRepository, UserRepository } from "../../repositories";
 import { ApiError, CryptoPassword, Token, UID } from "../../utils";
-import IRegisterUserUseCaseDTO from "./IRegisterUserUseCaseDTO";
-class RegisterUserUseCase {
+import IRegisterUseCaseDTO from "./IRegisterUseCaseDTO";
+class RegisterUseCase {
   constructor(
     private userRepository: UserRepository,
     private tokenMailRepository: TokenMailRepository,
@@ -10,7 +10,7 @@ class RegisterUserUseCase {
     private tokenUtil: Token,
     private uid: UID
   ) {}
-  async run(data: IRegisterUserUseCaseDTO) {
+  async run(data: IRegisterUseCaseDTO) {
     const user = await this.userRepository.findByEmail(data.email);
 
     if (!!user) throw new ApiError(401, "E-mail encontra-se em uso");
@@ -43,4 +43,4 @@ class RegisterUserUseCase {
   }
 }
 
-export default RegisterUserUseCase;
+export default RegisterUseCase;

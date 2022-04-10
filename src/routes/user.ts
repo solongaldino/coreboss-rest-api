@@ -30,6 +30,10 @@ import {
   updatePasswordController,
   updatePasswordRequestSchema,
 } from "../useCases/UpdatePassword";
+import {
+  cancelAccountController,
+  cancelAccountRequestSchema,
+} from "../useCases/CancelAccount";
 
 const userRouter = Router();
 
@@ -85,6 +89,12 @@ userRouter.post(
   "/updatePassword",
   JoiValidator(updatePasswordRequestSchema),
   updatePasswordController.handle
+);
+
+userRouter.post(
+  "/updatePassword",
+  JoiValidator(cancelAccountRequestSchema),
+  cancelAccountController.handle
 );
 
 export default userRouter;

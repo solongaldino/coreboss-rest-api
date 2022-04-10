@@ -14,13 +14,6 @@ class Router {
 
     /* UserController */
 
-    express
-      .route("/user/cancelAccountRequest")
-      .post(
-        AuthMiddleware.isAuthenticated,
-        UserController.cancelAccountRequest
-      );
-
     express.route("/user/isAuthenticated").post(UserController.isAuthenticated);
   }
 }

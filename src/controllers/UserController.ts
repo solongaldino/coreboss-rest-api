@@ -11,21 +11,5 @@ class UserController {
       return res.status(400).send({ error: error.message });
     }
   }
-
-  public async cancelAccountRequest(
-    req: Request,
-    res: Response
-  ): Promise<Response> {
-    try {
-      await UserService.cancelAccountRequest({
-        password: req.body.password,
-        userId: req.body.userId,
-      });
-
-      return res.send({ message: "ok" });
-    } catch (error: any) {
-      return res.status(400).send({ error: error.message });
-    }
-  }
 }
 export default new UserController();

@@ -1,13 +1,13 @@
 import { NextFunction, Request, Response } from "express";
-import UserLogoutUseCase from "./UserLogoutUseCase";
+import LogoutUseCase from "./LogoutUseCase";
 
-class UserLogoutController {
-  constructor(private userLogoutUseCase: UserLogoutUseCase) {}
+class LogoutController {
+  constructor(private logoutUseCase: LogoutUseCase) {}
 
   public async handle(req: Request, res: Response, next: NextFunction) {
     const { xAccessToken, userId } = req.body;
     try {
-      await this.userLogoutUseCase.run({
+      await this.logoutUseCase.run({
         xAccessToken,
         userId,
       });
@@ -17,4 +17,4 @@ class UserLogoutController {
     }
   }
 }
-export default UserLogoutController;
+export default LogoutController;

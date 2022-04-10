@@ -1,15 +1,15 @@
 import { JwtBlackListRepository, UserRepository } from "../../repositories";
 import { ApiError, UID } from "../../utils";
-import IUserLogoutUseCaseDTO from "./IUserLogoutUseCaseDTO";
+import ILogoutUseCaseDTO from "./ILogoutUseCaseDTO";
 
-class UserLogoutUseCase {
+class LogoutUseCase {
   constructor(
     private userRepository: UserRepository,
     private jwtBlackListRepository: JwtBlackListRepository,
     private uid: UID
   ) {}
 
-  async run(data: IUserLogoutUseCaseDTO) {
+  async run(data: ILogoutUseCaseDTO) {
     const { userId, xAccessToken } = data;
 
     const user = await this.userRepository.findById(userId);
@@ -28,4 +28,4 @@ class UserLogoutUseCase {
     if (!response) throw new ApiError(400, "Logout fail");
   }
 }
-export default UserLogoutUseCase;
+export default LogoutUseCase;

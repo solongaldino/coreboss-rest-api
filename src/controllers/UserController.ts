@@ -12,23 +12,6 @@ class UserController {
     }
   }
 
-  public async updatePasswordById(
-    req: Request,
-    res: Response
-  ): Promise<Response> {
-    try {
-      await UserService.updatePasswordById({
-        password: req.body.password,
-        newPassword: req.body.newPassword,
-        userId: req.body.userId,
-      });
-
-      return res.send({ message: "ok" });
-    } catch (error: any) {
-      return res.status(400).send({ error: error.message });
-    }
-  }
-
   public async cancelAccountRequest(
     req: Request,
     res: Response

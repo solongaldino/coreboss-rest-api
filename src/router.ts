@@ -15,10 +15,6 @@ class Router {
     /* UserController */
 
     express
-      .route("/user/updatePasswordById")
-      .post(AuthMiddleware.isAuthenticated, UserController.updatePasswordById);
-
-    express
       .route("/user/cancelAccountRequest")
       .post(
         AuthMiddleware.isAuthenticated,

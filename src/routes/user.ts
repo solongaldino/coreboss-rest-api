@@ -26,6 +26,10 @@ import {
   unlockLoginController,
   unlockLoginRequestSchema,
 } from "../useCases/UnlockLogin";
+import {
+  updatePasswordController,
+  updatePasswordRequestSchema,
+} from "../useCases/UpdatePassword";
 
 const userRouter = Router();
 
@@ -75,6 +79,12 @@ userRouter.post(
   "/unlockLogin",
   JoiValidator(unlockLoginRequestSchema),
   unlockLoginController.handle
+);
+
+userRouter.post(
+  "/updatePassword",
+  JoiValidator(updatePasswordRequestSchema),
+  updatePasswordController.handle
 );
 
 export default userRouter;

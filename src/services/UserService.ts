@@ -40,27 +40,6 @@ class UserService {
     return AuthJwtService.isAuthenticated(token);
   }
 
-  async updatePasswordById(obj: UpdatePasswordDto) {
-    const user = await this.getById(obj.userId);
-
-    const isValidPassword = CryptoPassword.comparePassword(
-      obj.password,
-      user.password
-    );
-    if (!isValidPassword) throw new Error("Senha incorreta");
-
-    const passwordEc = CryptoPassword.generationHash(obj.newPassword);
-
-    return await prisma.user.update({
-      where: {
-        id: obj.userId,
-      },
-      data: {
-        password: passwordEc,
-      },
-    });
-  }
-
   async cancelAccountRequest(obj: CancelAccountRequestDto) {
     const user = await this.getById(obj.userId);
 

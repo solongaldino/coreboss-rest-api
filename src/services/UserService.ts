@@ -40,32 +40,6 @@ class UserService {
     return AuthJwtService.isAuthenticated(token);
   }
 
-  async passwordRecoveryRequest(email: string) {
-    const user = await this.getByEmail(email);
-    if (!!!user) throw new Error("E-mail não encontrado");
-
-    const token = Token.create();
-
-    const tokenMail = await prisma.tokenMail.create({
-      data: {
-        id: UID.createDefault(),
-        email: email,
-        token: token.hash,
-        type: TokenMailType.PASSWORD_RECOVERY_REQUEST,
-        status: TokenMailStatus.OPEN,
-        token_expiration: token.expiration,
-        created_at: new Date(),
-      },
-    });
-
-    if (!tokenMail) throw new Error("Error ao salvar informações");
-
-    const url =
-      BASE_URL_FRONT_END + "/update-password?token=" + tokenMail.token;
-
-    // Envia e-mail com instruções e link para formulario de nova senha
-  }
-
   async confirmPasswordRecovery(obj: ConfirmPasswordRecoveryDto) {
     const tokenMail = await prisma.tokenMail.findUnique({
       where: {

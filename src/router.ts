@@ -15,10 +15,6 @@ class Router {
     /* UserController */
 
     express
-      .route("/user/passwordRecoveryRequest")
-      .post(UserController.passwordRecoveryRequest);
-
-    express
       .route("/user/confirmPasswordRecovery")
       .post(UserController.confirmPasswordRecovery);
 

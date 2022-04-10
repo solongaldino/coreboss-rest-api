@@ -8,6 +8,10 @@ import {
   isRegisteredEmailRequestSchema,
 } from "../useCases/IsRegisteredEmail";
 import {
+  passwordRecoveryRequestSchema,
+  passworRecoveryController,
+} from "../useCases/PasswordRecovery";
+import {
   registerUserController,
   registerUserRequestSchema,
 } from "../useCases/RegisterUser";
@@ -51,6 +55,12 @@ userRouter.post(
   "/logout",
   JoiValidator(userLogoutRequestSchema),
   userLogoutController.handle
+);
+
+userRouter.post(
+  "/passwordRecovery",
+  JoiValidator(passwordRecoveryRequestSchema),
+  passworRecoveryController.handle
 );
 
 export default userRouter;

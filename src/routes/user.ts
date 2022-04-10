@@ -4,6 +4,10 @@ import {
   confirmationRegisterUserRequestSchema,
 } from "../useCases/ConfirmationRegisterUser";
 import {
+  confirmPasswordRecoveryController,
+  confirmPasswordRecoveryRequestSchema,
+} from "../useCases/ConfirmPasswordRecovery";
+import {
   isRegisteredEmailController,
   isRegisteredEmailRequestSchema,
 } from "../useCases/IsRegisteredEmail";
@@ -61,6 +65,12 @@ userRouter.post(
   "/passwordRecovery",
   JoiValidator(passwordRecoveryRequestSchema),
   passworRecoveryController.handle
+);
+
+userRouter.post(
+  "/confirmPasswordRecovery",
+  JoiValidator(confirmPasswordRecoveryRequestSchema),
+  confirmPasswordRecoveryController.handle
 );
 
 export default userRouter;

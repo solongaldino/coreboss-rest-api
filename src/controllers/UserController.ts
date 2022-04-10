@@ -12,22 +12,6 @@ class UserController {
     }
   }
 
-  public async confirmPasswordRecovery(
-    req: Request,
-    res: Response
-  ): Promise<Response> {
-    try {
-      await UserService.confirmPasswordRecovery({
-        password: req.body.password,
-        token: req.body.token,
-      });
-
-      return res.send({ message: "ok" });
-    } catch (error: any) {
-      return res.status(400).send({ error: error.message });
-    }
-  }
-
   public async unlockLogin(req: Request, res: Response): Promise<Response> {
     try {
       await UserService.unlockLogin(req.body.token);

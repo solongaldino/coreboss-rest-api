@@ -1,4 +1,4 @@
-export interface IUserAuthUseCaseDTO {
+export default interface IUserAuthUseCaseDTO {
   email: string;
   password: string;
 }

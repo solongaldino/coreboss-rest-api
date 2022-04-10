@@ -14,10 +14,6 @@ class Router {
 
     /* UserController */
 
-    express.route("/user/logout").post(UserController.logout);
-
-    express.route("/user/isAuthenticated").post(UserController.isAuthenticated);
-
     express
       .route("/user/passwordRecoveryRequest")
       .post(UserController.passwordRecoveryRequest);
@@ -38,6 +34,8 @@ class Router {
         AuthMiddleware.isAuthenticated,
         UserController.cancelAccountRequest
       );
+
+    express.route("/user/isAuthenticated").post(UserController.isAuthenticated);
   }
 }
 export default Router;

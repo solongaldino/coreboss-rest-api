@@ -36,23 +36,6 @@ class UserService {
     });
   }
 
-  async logout(obj: LogoutDto) {
-    const userId = obj.userId;
-
-    const user = await this.getById(userId);
-
-    const response = await JwtBlackListRepository.create({
-      data: {
-        id: UID.createDefault(),
-        user: user.id,
-        token: obj.token,
-        created_at: new Date(),
-      },
-    });
-
-    if (!response) throw new Error("Logout fail");
-  }
-
   async isAuthenticated(token: string) {
     return AuthJwtService.isAuthenticated(token);
   }

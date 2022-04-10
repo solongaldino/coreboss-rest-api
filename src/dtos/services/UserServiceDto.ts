@@ -2,11 +2,6 @@ export interface ConfirmationRegisterDto {
   token: string;
 }
 
-export interface LogoutDto {
-  token: string;
-  userId: string;
-}
-
 export interface ConfirmPasswordRecoveryDto {
   token: string;
   password: string;

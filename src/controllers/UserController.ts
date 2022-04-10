@@ -2,19 +2,6 @@ import { Request, Response } from "express";
 import UserService from "../services/UserService";
 
 class UserController {
-  public async logout(req: Request, res: Response): Promise<Response> {
-    try {
-      await UserService.logout({
-        token: req.body.token,
-        userId: req.body.userId,
-      });
-
-      return res.send({ message: "ok" });
-    } catch (error: any) {
-      return res.status(400).send({ error: error.message });
-    }
-  }
-
   public async isAuthenticated(req: Request, res: Response): Promise<Response> {
     try {
       const dataAuth = await UserService.isAuthenticated(req.body.token);

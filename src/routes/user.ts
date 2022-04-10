@@ -15,6 +15,10 @@ import {
   userAuthController,
   userAuthRequestSchema,
 } from "../useCases/UserAuth";
+import {
+  userLogoutController,
+  userLogoutRequestSchema,
+} from "../useCases/UserLogout";
 import { JoiValidator } from "../utils";
 
 const userRouter = Router();
@@ -41,6 +45,12 @@ userRouter.post(
   "/auth",
   JoiValidator(userAuthRequestSchema),
   userAuthController.handle
+);
+
+userRouter.post(
+  "/logout",
+  JoiValidator(userLogoutRequestSchema),
+  userLogoutController.handle
 );
 
 export default userRouter;

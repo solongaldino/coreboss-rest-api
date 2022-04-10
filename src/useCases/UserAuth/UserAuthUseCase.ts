@@ -7,7 +7,7 @@ import {
   UserRepository,
 } from "../../repositories";
 import { ApiError, AuthJwt, CryptoPassword, Token, UID } from "../../utils";
-import { IUserAuthUseCaseDTO } from "./IUserAuthUseCaseDTO";
+import IUserAuthUseCaseDTO from "./IUserAuthUseCaseDTO";
 
 class UserAuthUseCase {
   constructor(

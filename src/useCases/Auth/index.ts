@@ -5,9 +5,9 @@ import {
   UserRepository,
 } from "../../repositories";
 import { AuthJwt, CryptoPassword, Token, UID } from "../../utils";
-import UserAuthController from "./UserAuthController";
-import UserAuthUseCase from "./UserAuthUseCase";
-import userAuthRequestSchema from "./UserAuthRequestSchema";
+import AuthController from "./AuthController";
+import AuthUseCase from "./AuthUseCase";
+import authRequestSchema from "./AuthRequestSchema";
 
 const userRepository = new UserRepository();
 const tokenMailRepository = new TokenMailRepository();
@@ -18,7 +18,7 @@ const cryptoPassword = new CryptoPassword();
 const authJwt = new AuthJwt();
 const uid = new UID();
 
-const userAuthUseCase = new UserAuthUseCase(
+const authUseCase = new AuthUseCase(
   userRepository,
   tokenMailRepository,
   loginStatementRepository,
@@ -29,6 +29,6 @@ const userAuthUseCase = new UserAuthUseCase(
   uid
 );
 
-const userAuthController = new UserAuthController(userAuthUseCase);
+const authController = new AuthController(authUseCase);
 
-export { userAuthController, userAuthRequestSchema };
+export { authController, authRequestSchema };

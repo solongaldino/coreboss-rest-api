@@ -7,9 +7,9 @@ import {
   UserRepository,
 } from "../../repositories";
 import { ApiError, AuthJwt, CryptoPassword, Token, UID } from "../../utils";
-import IUserAuthUseCaseDTO from "./IUserAuthUseCaseDTO";
+import IAuthUseCaseDTO from "./IAuthUseCaseDTO";
 
-class UserAuthUseCase {
+class AuthUseCase {
   constructor(
     private userRepository: UserRepository,
     private tokenMailRepository: TokenMailRepository,
@@ -21,7 +21,7 @@ class UserAuthUseCase {
     private uid: UID
   ) {}
 
-  async run(data: IUserAuthUseCaseDTO) {
+  async run(data: IAuthUseCaseDTO) {
     const user = await this.userRepository.findByEmail(data.email);
     if (!!!user) throw new ApiError(404, "E-mail não encontrado");
     if (user.status == UserStatus.BLOCKED_ATTEMPT_LOGIN)
@@ -139,4 +139,4 @@ class UserAuthUseCase {
   }
 }
 
-export default UserAuthUseCase;
+export default AuthUseCase;

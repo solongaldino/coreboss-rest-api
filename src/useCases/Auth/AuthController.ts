@@ -1,13 +1,13 @@
 import { NextFunction, Request, Response } from "express";
-import UserAuthUseCase from "./UserAuthUseCase";
+import AuthUseCase from "./AuthUseCase";
 
-class UserAuthController {
-  constructor(private userAuthUseCase: UserAuthUseCase) {}
+class AuthController {
+  constructor(private authUseCase: AuthUseCase) {}
 
   public async handle(req: Request, res: Response, next: NextFunction) {
     const { email, password } = req.body;
     try {
-      const dataAuth = await this.userAuthUseCase.run({
+      const dataAuth = await this.authUseCase.run({
         email,
         password,
       });
@@ -18,4 +18,4 @@ class UserAuthController {
     }
   }
 }
-export default UserAuthController;
+export default AuthController;

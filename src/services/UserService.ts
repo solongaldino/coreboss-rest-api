@@ -40,61 +40,6 @@ class UserService {
     return AuthJwtService.isAuthenticated(token);
   }
 
-  async unlockLogin(token: string) {
-    const tokenMail = await prisma.tokenMail.findUnique({
-      where: {
-        token: token,
-      },
-    });
-
-    if (!tokenMail) throw new Error("Token não existe");
-
-    if (tokenMail.status == TokenMailStatus.EXPIRED)
-      throw new Error("Token expirado");
-
-    if (Token.isExpired(tokenMail.token_expiration)) {
-      await prisma.tokenMail.update({
-        where: {
-          id: tokenMail.id,
-        },
-        data: {
-          status: TokenMailStatus.EXPIRED,
-        },
-      });
-
-      throw new Error("Token expirado");
-    }
-
-    const user = await this.getByEmail(tokenMail.email);
-    if (!!!user) throw new Error("E-mail não encontrado");
-
-    const updateUser = prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        attempt_login: 0,
-        status: UserStatus.ACTIVE,
-      },
-    });
-
-    const updateTokenMail = prisma.tokenMail.update({
-      where: {
-        id: tokenMail.id,
-      },
-      data: {
-        status: TokenMailStatus.FINISHED,
-      },
-    });
-
-    const transaction = await prisma.$transaction([
-      updateUser,
-      updateTokenMail,
-    ]);
-
-    if (!transaction) throw new Error("Transaction fail");
-  }
-
   async updatePasswordById(obj: UpdatePasswordDto) {
     const user = await this.getById(obj.userId);
 

@@ -14,8 +14,6 @@ class Router {
 
     /* UserController */
 
-    express.route("/user/unlockLogin").post(UserController.unlockLogin);
-
     express
       .route("/user/updatePasswordById")
       .post(AuthMiddleware.isAuthenticated, UserController.updatePasswordById);

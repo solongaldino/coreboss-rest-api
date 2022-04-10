@@ -22,6 +22,10 @@ import {
 import { authController, authRequestSchema } from "../useCases/Auth";
 import { logoutController, logoutRequestSchema } from "../useCases/Logout";
 import { JoiValidator } from "../utils";
+import {
+  unlockLoginController,
+  unlockLoginRequestSchema,
+} from "../useCases/UnlockLogin";
 
 const userRouter = Router();
 
@@ -65,6 +69,12 @@ userRouter.post(
   "/confirmPasswordRecovery",
   JoiValidator(confirmPasswordRecoveryRequestSchema),
   confirmPasswordRecoveryController.handle
+);
+
+userRouter.post(
+  "/unlockLogin",
+  JoiValidator(unlockLoginRequestSchema),
+  unlockLoginController.handle
 );
 
 export default userRouter;

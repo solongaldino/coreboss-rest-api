@@ -9,7 +9,7 @@ class AuthController {
         email,
         password,
       });
-      return res.send({ xAccessToken: dataAuth, message: "ok" });
+      return res.send({ xAccessToken: dataAuth });
     } catch (error) {
       return next(error);
     }

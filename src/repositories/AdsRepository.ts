@@ -24,4 +24,4 @@ class AdsRepository {
   }
 }
 
-export default AdsRepository;
+export default new AdsRepository();

@@ -14,4 +14,4 @@ class JwtBlackListRepository {
   }
 }
 
-export default JwtBlackListRepository;
+export default new JwtBlackListRepository();

@@ -32,4 +32,4 @@ class TokenMailRepository {
   }
 }
 
-export default TokenMailRepository;
+export default new TokenMailRepository();

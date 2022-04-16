@@ -10,19 +10,8 @@ import { ApiError, AuthJwt, CryptoPassword, Token, UID } from "../../utils";
 import IAuthUseCaseDTO from "./IAuthUseCaseDTO";
 
 class AuthUseCase {
-  constructor(
-    private userRepository: UserRepository,
-    private tokenMailRepository: TokenMailRepository,
-    private loginStatementRepository: LoginStatementRepository,
-    private baseRepository: BaseRepository,
-    private tokenUtil: Token,
-    private cryptoPassword: CryptoPassword,
-    private authJwt: AuthJwt,
-    private uid: UID
-  ) {}
-
   async run(data: IAuthUseCaseDTO) {
-    const user = await this.userRepository.findByEmail(data.email);
+    const user = await UserRepository.findByEmail(data.email);
     if (!!!user) throw new ApiError(404, "E-mail não encontrado");
     if (user.status == UserStatus.BLOCKED_ATTEMPT_LOGIN)
       throw new ApiError(
@@ -30,7 +19,7 @@ class AuthUseCase {
         "Usuário bloqueado devido as varias tentativas de login com senha incorreta, verifique sua caixa de e-mail."
       );
 
-    const isValidPassword = this.cryptoPassword.comparePassword(
+    const isValidPassword = CryptoPassword.comparePassword(
       data.password,
       user.password
     );
@@ -41,7 +30,7 @@ class AuthUseCase {
       const maxAttempt = 5;
 
       if (attemptLogin >= maxAttempt) {
-        const blockUser = this.userRepository.update({
+        const blockUser = UserRepository.update({
           where: {
             id: user.id,
           },
@@ -51,11 +40,11 @@ class AuthUseCase {
           },
         });
 
-        const token = this.tokenUtil.create(999999999);
+        const token = Token.create(999999999);
 
-        const tokenMail = this.tokenMailRepository.create({
+        const tokenMail = TokenMailRepository.create({
           data: {
-            id: this.uid.create(),
+            id: UID.create(),
             email: user.email,
             token: token.hash,
             type: TokenMailType.BLOCKED_USER_ATTEMPT_LOGIN,
@@ -65,7 +54,7 @@ class AuthUseCase {
           },
         });
 
-        const transaction = await this.baseRepository.transaction([
+        const transaction = await BaseRepository.transaction([
           blockUser,
           tokenMail,
         ]);
@@ -87,7 +76,7 @@ class AuthUseCase {
         );
       }
 
-      const updateAttemptLoginUser = await this.userRepository.update({
+      const updateAttemptLoginUser = UserRepository.update({
         where: {
           id: user.id,
         },
@@ -107,19 +96,19 @@ class AuthUseCase {
       );
     }
 
-    const xAccessToken = this.authJwt.login({
+    const xAccessToken = AuthJwt.login({
       id: user.id,
     });
 
-    const loginStatement = this.loginStatementRepository.create({
+    const loginStatement = LoginStatementRepository.create({
       data: {
-        id: this.uid.create(),
+        id: UID.create(),
         user: user.id,
         created_at: new Date(),
       },
     });
 
-    const updateAttemptLoginUser = this.userRepository.update({
+    const updateAttemptLoginUser = UserRepository.update({
       where: {
         id: user.id,
       },
@@ -128,7 +117,7 @@ class AuthUseCase {
       },
     });
 
-    const transaction = await this.baseRepository.transaction([
+    const transaction = await BaseRepository.transaction([
       updateAttemptLoginUser,
       loginStatement,
     ]);
@@ -139,4 +128,4 @@ class AuthUseCase {
   }
 }
 
-export default AuthUseCase;
+export default new AuthUseCase();

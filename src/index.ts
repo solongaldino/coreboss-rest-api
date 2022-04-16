@@ -14,4 +14,6 @@ app.use("/v1", routes);
 
 const serverPort = process.env.SERVER_PORT || 3333;
 
-app.listen(serverPort);
+app.listen(serverPort, () => {
+  console.log(serverPort);
+});

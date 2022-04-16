@@ -11,4 +11,4 @@ class UID {
     return uid(lenght);
   }
 }
-export default UID;
+export default new UID();

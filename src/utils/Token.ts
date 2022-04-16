@@ -29,4 +29,4 @@ class Token {
     return date < new Date() ? true : false;
   }
 }
-export default Token;
+export default new Token();

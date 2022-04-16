@@ -19,4 +19,4 @@ class LoginStatementRepository {
   }
 }
 
-export default LoginStatementRepository;
+export default new LoginStatementRepository();

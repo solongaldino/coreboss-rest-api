@@ -30,4 +30,4 @@ class AuthJwt {
     return jwt.verify(token, secretJwt);
   }
 }
-export default AuthJwt;
+export default new AuthJwt();

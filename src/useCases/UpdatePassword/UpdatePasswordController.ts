@@ -2,12 +2,10 @@ import { NextFunction, Request, Response } from "express";
 import UpdatePasswordUseCase from "./UpdatePasswordUseCase";
 
 class UpdatePasswordController {
-  constructor(private updatePasswordUseCase: UpdatePasswordUseCase) {}
-
   public async handle(req: Request, res: Response, next: NextFunction) {
     const { password, newPassword, userId } = req.body;
     try {
-      await this.updatePasswordUseCase.run({
+      await UpdatePasswordUseCase.run({
         password,
         newPassword,
         userId,
@@ -19,4 +17,4 @@ class UpdatePasswordController {
     }
   }
 }
-export default UpdatePasswordController;
+export default new UpdatePasswordController();

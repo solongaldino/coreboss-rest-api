@@ -8,23 +8,16 @@ import { ApiError, CryptoPassword, Token } from "../../utils";
 import IConfirmPasswordRecoveryUseCaseDTO from "./IConfirmPasswordRecoveryUseCaseDTO";
 
 class ConfirmPasswordRecoveryUseCase {
-  constructor(
-    private userRepository: UserRepository,
-    private tokenMailRepository: TokenMailRepository,
-    private baseRepository: BaseRepository,
-    private cryptoPassword: CryptoPassword,
-    private tokenUtil: Token
-  ) {}
   async run(data: IConfirmPasswordRecoveryUseCaseDTO) {
-    const tokenMail = await this.tokenMailRepository.findByToken(data.token);
+    const tokenMail = await TokenMailRepository.findByToken(data.token);
 
     if (!tokenMail) throw new ApiError(400, "Token não existe");
 
     if (tokenMail.status == TokenMailStatus.EXPIRED)
       throw new ApiError(400, "Token expirado");
 
-    if (this.tokenUtil.isExpired(tokenMail.token_expiration)) {
-      await this.tokenMailRepository.update({
+    if (Token.isExpired(tokenMail.token_expiration)) {
+      await TokenMailRepository.update({
         where: {
           id: tokenMail.id,
         },
@@ -36,12 +29,12 @@ class ConfirmPasswordRecoveryUseCase {
       throw new ApiError(400, "Token expirado");
     }
 
-    const user = await this.userRepository.findByEmail(tokenMail.email);
+    const user = await UserRepository.findByEmail(tokenMail.email);
     if (!!!user) throw new ApiError(400, "E-mail não encontrado");
 
-    const passwordEc = this.cryptoPassword.generationHash(data.password);
+    const passwordEc = CryptoPassword.generationHash(data.password);
 
-    const updatePasswordUser = this.userRepository.update({
+    const updatePasswordUser = UserRepository.update({
       where: {
         id: user.id,
       },
@@ -50,7 +43,7 @@ class ConfirmPasswordRecoveryUseCase {
       },
     });
 
-    const updateTokenMail = this.tokenMailRepository.update({
+    const updateTokenMail = TokenMailRepository.update({
       where: {
         id: tokenMail.id,
       },
@@ -59,7 +52,7 @@ class ConfirmPasswordRecoveryUseCase {
       },
     });
 
-    const transaction = await this.baseRepository.transaction([
+    const transaction = await BaseRepository.transaction([
       updatePasswordUser,
       updateTokenMail,
     ]);
@@ -67,4 +60,4 @@ class ConfirmPasswordRecoveryUseCase {
     if (!transaction) throw new ApiError(400, "Transaction fail");
   }
 }
-export default ConfirmPasswordRecoveryUseCase;
+export default new ConfirmPasswordRecoveryUseCase();

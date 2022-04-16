@@ -3,25 +3,18 @@ import { TokenMailRepository, UserRepository } from "../../repositories";
 import { ApiError, CryptoPassword, Token, UID } from "../../utils";
 import IRegisterUseCaseDTO from "./IRegisterUseCaseDTO";
 class RegisterUseCase {
-  constructor(
-    private userRepository: UserRepository,
-    private tokenMailRepository: TokenMailRepository,
-    private cryptoPassword: CryptoPassword,
-    private tokenUtil: Token,
-    private uid: UID
-  ) {}
   async run(data: IRegisterUseCaseDTO) {
-    const user = await this.userRepository.findByEmail(data.email);
+    const user = await UserRepository.findByEmail(data.email);
 
     if (!!user) throw new ApiError(401, "E-mail encontra-se em uso");
 
-    const passwordEc = this.cryptoPassword.generationHash(data.password);
+    const passwordEc = CryptoPassword.generationHash(data.password);
 
-    const token = this.tokenUtil.create();
+    const token = Token.create();
 
-    const tokenMail = await this.tokenMailRepository.create({
+    const tokenMail = await TokenMailRepository.create({
       data: {
-        id: this.uid.create(),
+        id: UID.create(),
         email: data.email,
         token: token.hash,
         type: TokenMailType.REGISTER_USER,
@@ -43,4 +36,4 @@ class RegisterUseCase {
   }
 }
 
-export default RegisterUseCase;
+export default new RegisterUseCase();

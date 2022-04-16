@@ -2,14 +2,10 @@ import { NextFunction, Request, Response } from "express";
 import ConfirmPasswordRecoveryUseCase from "./ConfirmPasswordRecoveryUseCase";
 
 class ConfirmPasswordRecoveryController {
-  constructor(
-    private confirmPasswordRecoveryUseCase: ConfirmPasswordRecoveryUseCase
-  ) {}
-
   public async handle(req: Request, res: Response, next: NextFunction) {
     const { password, token } = req.body;
     try {
-      await this.confirmPasswordRecoveryUseCase.run({
+      await ConfirmPasswordRecoveryUseCase.run({
         password,
         token,
       });
@@ -19,4 +15,4 @@ class ConfirmPasswordRecoveryController {
     }
   }
 }
-export default ConfirmPasswordRecoveryController;
+export default new ConfirmPasswordRecoveryController();

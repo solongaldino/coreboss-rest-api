@@ -2,7 +2,6 @@ import { AuthJwt } from "../../utils";
 import IIsAuthenticatedUseCaseDTO from "./IIsAuthenticatedUseCaseDTO";
 
 class IsAuthenticatedUseCase {
-  constructor(private authJwt: AuthJwt) {}
   async run(data: IIsAuthenticatedUseCaseDTO) {
     // return AuthJwtService.isAuthenticated(token);
   }
@@ -16,4 +15,4 @@ class IsAuthenticatedUseCase {
   //     return !!result ? true : false;
   //   }
 }
-export default IsAuthenticatedUseCase;
+export default new IsAuthenticatedUseCase();

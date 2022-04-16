@@ -4,25 +4,18 @@ import { ApiError, Token, UID } from "../../utils";
 import IPasswordRecoveryUseCaseDTO from "./IPasswordRecoveryUseCaseDTO";
 
 class PasswordRecoveryUseCase {
-  constructor(
-    private userRepository: UserRepository,
-    private tokenMailRepository: TokenMailRepository,
-    private tokenUtil: Token,
-    private uidUtil: UID
-  ) {}
-
   async run(data: IPasswordRecoveryUseCaseDTO) {
     const { email } = data;
 
-    const user = await this.userRepository.findByEmail(email);
+    const user = await UserRepository.findByEmail(email);
 
     if (!!!user) throw new ApiError(400, "E-mail não encontrado");
 
-    const token = this.tokenUtil.create();
+    const token = Token.create();
 
-    const tokenMail = await this.tokenMailRepository.create({
+    const tokenMail = await TokenMailRepository.create({
       data: {
-        id: this.uidUtil.create(),
+        id: UID.create(),
         email: email,
         token: token.hash,
         type: TokenMailType.PASSWORD_RECOVERY_REQUEST,
@@ -42,4 +35,4 @@ class PasswordRecoveryUseCase {
 
   // Envia e-mail com instruções e link para formulario de nova senha}
 }
-export default PasswordRecoveryUseCase;
+export default new PasswordRecoveryUseCase();

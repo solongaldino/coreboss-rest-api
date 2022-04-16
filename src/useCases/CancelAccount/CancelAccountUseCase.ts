@@ -4,30 +4,23 @@ import { ApiError, CryptoPassword, Token, UID } from "../../utils";
 import ICancelAccountUseCase from "./ICancelAccountUseCaseDTO";
 
 class CancelAccountUseCase {
-  constructor(
-    private userRepository: UserRepository,
-    private tokenMailRepository: TokenMailRepository,
-    private cryptoPassword: CryptoPassword,
-    private tokenUtil: Token,
-    private uid: UID
-  ) {}
   async run(data: ICancelAccountUseCase) {
-    const user = await this.userRepository.findById(data.userId);
+    const user = await UserRepository.findById(data.userId);
 
     if (!!!user) throw new ApiError(400, "User not found");
 
-    const isValidPassword = this.cryptoPassword.comparePassword(
+    const isValidPassword = CryptoPassword.comparePassword(
       data.password,
       user.password
     );
 
     if (!isValidPassword) throw new ApiError(400, "Senha incorreta");
 
-    const token = this.tokenUtil.create();
+    const token = Token.create();
 
-    const tokenMail = await this.tokenMailRepository.create({
+    const tokenMail = await TokenMailRepository.create({
       data: {
-        id: this.uid.create(),
+        id: UID.create(),
         email: user.email,
         token: token.hash,
         type: TokenMailType.CANCEL_ACCOUNT_REQUEST,
@@ -47,4 +40,4 @@ class CancelAccountUseCase {
     // Envia e-mail com instruções e link para formulario de nova senha
   }
 }
-export default CancelAccountUseCase;
+export default new CancelAccountUseCase();

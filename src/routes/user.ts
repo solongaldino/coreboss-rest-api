@@ -1,7 +1,11 @@
 import { Router } from "express";
 import { JoiValidator } from "../utils";
-import AuthController from "../useCases/Auth/AuthController";
 import { authRequestSchema } from "../useCases/Auth/AuthRequestSchema";
+import AuthController from "../useCases/Auth/AuthController";
+import { cancelAccountRequestSchema } from "../useCases/CancelAccount/CancelAccountRequestSchema";
+import CancelAccountController from "../useCases/CancelAccount/CancelAccountController";
+import { confirmationRegisterRequestSchema } from "../useCases/ConfirmationRegister/ConfirmationRegisterRequestSchema";
+import ConfirmationRegisterController from "../useCases/ConfirmationRegister/ConfirmationRegisterController";
 
 const userRouter = Router();
 
@@ -17,11 +21,11 @@ const userRouter = Router();
 //   registerController.handle
 // );
 
-// userRouter.post(
-//   "/confirmationRegister",
-//   JoiValidator(confirmationRegisterRequestSchema),
-//   confirmationRegisterController.handle
-// );
+userRouter.post(
+  "/confirmationRegister",
+  JoiValidator(confirmationRegisterRequestSchema),
+  ConfirmationRegisterController.handle
+);
 
 userRouter.post(
   "/auth",
@@ -59,12 +63,10 @@ userRouter.post(
 //   updatePasswordController.handle
 // );
 
-// userRouter.post(
-//   "/updatePassword",
-//   JoiValidator(cancelAccountRequestSchema),
-//   cancelAccountController.handle
-// );
-
-// userRouter.post("/test", TestController.handle);
+userRouter.post(
+  "/cancelAccount",
+  JoiValidator(cancelAccountRequestSchema),
+  CancelAccountController.handle
+);
 
 export default userRouter;

@@ -9,24 +9,16 @@ import { ApiError, Token, UID } from "../../utils";
 import IConfirmationRegisterUseCaseDTO from "./IConfirmationRegisterUseCaseDTO";
 
 class ConfirmationRegisterUseCase {
-  constructor(
-    private userRepository: UserRepository,
-    private tokenMailRepository: TokenMailRepository,
-    private baseRepository: BaseRepository,
-    private tokenUtil: Token,
-    private uid: UID
-  ) {}
-
   async run(obj: IConfirmationRegisterUseCaseDTO) {
-    const tokenMail = await this.tokenMailRepository.findByToken(obj.token);
+    const tokenMail = await TokenMailRepository.findByToken(obj.token);
 
     if (!tokenMail) throw new ApiError(400, "Token não existe");
 
     if (tokenMail.status == TokenMailStatus.EXPIRED)
       throw new ApiError(400, "Token expirado");
 
-    if (this.tokenUtil.isExpired(tokenMail.token_expiration)) {
-      await this.tokenMailRepository.update({
+    if (Token.isExpired(tokenMail.token_expiration)) {
+      await TokenMailRepository.update({
         where: {
           id: tokenMail.id,
         },
@@ -53,9 +45,9 @@ class ConfirmationRegisterUseCase {
 
     if (!tokenMail.details) throw new ApiError(400, "Password not found");
 
-    const createUser = this.userRepository.create({
+    const createUser = UserRepository.create({
       data: {
-        id: this.uid.create(),
+        id: UID.create(),
         email: tokenMail.email,
         password: JSON.parse(tokenMail.details).password,
         status: UserStatus.ACTIVE,
@@ -66,7 +58,7 @@ class ConfirmationRegisterUseCase {
       },
     });
 
-    const updateTokenMail = this.tokenMailRepository.update({
+    const updateTokenMail = TokenMailRepository.update({
       where: {
         id: tokenMail.id,
       },
@@ -75,7 +67,7 @@ class ConfirmationRegisterUseCase {
       },
     });
 
-    const transaction = await this.baseRepository.transaction([
+    const transaction = await BaseRepository.transaction([
       createUser,
       updateTokenMail,
     ]);
@@ -85,4 +77,4 @@ class ConfirmationRegisterUseCase {
     return transaction;
   }
 }
-export default ConfirmationRegisterUseCase;
+export default new ConfirmationRegisterUseCase();

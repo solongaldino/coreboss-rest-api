@@ -10,6 +10,10 @@ class AdsRepository {
     });
   }
 
+  findMany(obj: Prisma.AdsFindManyArgs) {
+    return prisma.ads.findMany(obj);
+  }
+
   update(obj: Prisma.AdsUpdateArgs) {
     obj.data.updated_at = new Date();
     return prisma.ads.update(obj);
@@ -21,6 +25,10 @@ class AdsRepository {
 
   delete(obj: Prisma.AdsDeleteArgs) {
     return prisma.ads.delete(obj);
+  }
+
+  count(obj: Prisma.AdsCountArgs) {
+    return prisma.ads.count(obj);
   }
 }
 

@@ -11,4 +11,8 @@ router.get("/status", (req, res) => {
   res.status(200).send("<h1>OK</h1>");
 });
 
+router.all("*", (req, res) => {
+  return res.status(404).json("404 Not Found");
+});
+
 export default router;

@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import AuthResponseDTO from "./AuthResponseDTO";
 import AuthUseCase from "./AuthUseCase";
 class AuthController {
   async handle(req: Request, res: Response, next: NextFunction) {
@@ -9,7 +10,10 @@ class AuthController {
         email,
         password,
       });
-      return res.send({ xAccessToken: dataAuth });
+
+      const response: AuthResponseDTO = { xAccessToken: dataAuth };
+
+      return res.send(response);
     } catch (error) {
       return next(error);
     }

@@ -1,3 +1,3 @@
-import PrismaProvider from "./PrismaProvider";
+import PrismaClientProvider from "./PrismaProvider";
 
-export { PrismaProvider as prisma };
+export { PrismaClientProvider };

@@ -21,16 +21,16 @@ class UserRepository extends MainReporitory<
   constructor(conn = PrismaClientProvider) {
     super("user", conn);
   }
-  findById(param: User["id"]) {
-    return super.conn.user.findUnique({
+  findById(param: User["id"], conn = super.conn) {
+    return conn.user.findUnique({
       where: {
         id: param,
       },
     });
   }
 
-  findByEmail(param: User["email"]) {
-    return super.conn.user.findUnique({
+  findByEmail(param: User["email"], conn = super.conn) {
+    return conn.user.findUnique({
       where: {
         email: param,
       },

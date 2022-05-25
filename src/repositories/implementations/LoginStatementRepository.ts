@@ -22,8 +22,8 @@ class LoginStatementRepository extends MainReporitory<
     super("loginStatement", conn);
   }
 
-  findById(param: LoginStatement["id"]) {
-    return super.conn.loginStatement.findUnique({
+  findById(param: LoginStatement["id"], conn = super.conn) {
+    return conn.loginStatement.findUnique({
       where: {
         id: param,
       },

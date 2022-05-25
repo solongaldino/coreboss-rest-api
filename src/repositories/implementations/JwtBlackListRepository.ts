@@ -22,15 +22,12 @@ class JwtBlackListRepository extends MainReporitory<
     super("jwtBlackList", conn);
   }
 
-  findByToken(param: JwtBlackList["token"]) {
-    return super.conn.jwtBlackList.findFirst({
+  findByToken(param: JwtBlackList["token"], conn = super.conn) {
+    return conn.jwtBlackList.findFirst({
       where: {
         token: param,
       },
     });
-  }
-  create(obj: Prisma.JwtBlackListCreateArgs) {
-    return super.conn.jwtBlackList.create(obj);
   }
 }
 

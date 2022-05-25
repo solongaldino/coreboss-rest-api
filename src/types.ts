@@ -7,4 +7,4 @@ export type AsyncFunTransaction = Omit<
 
 export type Connection = PrismaClient | AsyncFunTransaction;
 
-type ModelsUncapitalize = Uncapitalize<Prisma.ModelName>;
+export type ModelsUncapitalize = Uncapitalize<Prisma.ModelName>;

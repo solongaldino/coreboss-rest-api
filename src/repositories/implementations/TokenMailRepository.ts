@@ -22,16 +22,16 @@ class TokenMailRepository extends MainReporitory<
     super("tokenMail", conn);
   }
 
-  findById(param: TokenMail["id"]) {
-    return super.conn.tokenMail.findUnique({
+  findById(param: TokenMail["id"], conn = super.conn) {
+    return conn.tokenMail.findUnique({
       where: {
         id: param,
       },
     });
   }
 
-  findByToken(param: TokenMail["token"]) {
-    return super.conn.tokenMail.findUnique({
+  findByToken(param: TokenMail["token"], conn = super.conn) {
+    return conn.tokenMail.findUnique({
       where: {
         token: param,
       },

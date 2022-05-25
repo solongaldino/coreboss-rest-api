@@ -21,7 +21,7 @@ class UserRepository extends MainReporitory<
   constructor(conn = PrismaClientProvider) {
     super("user", conn);
   }
-  findById(param: User["id"], conn = super.conn) {
+  findById(param: User["id"], conn = this.conn) {
     return conn.user.findUnique({
       where: {
         id: param,
@@ -29,7 +29,7 @@ class UserRepository extends MainReporitory<
     });
   }
 
-  findByEmail(param: User["email"], conn = super.conn) {
+  findByEmail(param: User["email"], conn = this.conn) {
     return conn.user.findUnique({
       where: {
         email: param,

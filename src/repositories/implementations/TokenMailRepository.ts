@@ -22,7 +22,7 @@ class TokenMailRepository extends MainReporitory<
     super("tokenMail", conn);
   }
 
-  findById(param: TokenMail["id"], conn = super.conn) {
+  findById(param: TokenMail["id"], conn = this.conn) {
     return conn.tokenMail.findUnique({
       where: {
         id: param,
@@ -30,7 +30,7 @@ class TokenMailRepository extends MainReporitory<
     });
   }
 
-  findByToken(param: TokenMail["token"], conn = super.conn) {
+  findByToken(param: TokenMail["token"], conn = this.conn) {
     return conn.tokenMail.findUnique({
       where: {
         token: param,

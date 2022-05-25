@@ -26,7 +26,7 @@ class AdsRepository
     super("ads", conn);
   }
 
-  findById(param: Ads["id"], conn = super.conn) {
+  findById(param: Ads["id"], conn = this.conn) {
     return conn.ads.findUnique({
       where: {
         id: param,

@@ -22,7 +22,7 @@ class JwtBlackListRepository extends MainReporitory<
     super("jwtBlackList", conn);
   }
 
-  findByToken(param: JwtBlackList["token"], conn = super.conn) {
+  findByToken(param: JwtBlackList["token"], conn = this.conn) {
     return conn.jwtBlackList.findFirst({
       where: {
         token: param,

@@ -8,3 +8,9 @@ export type AsyncFunTransaction = Omit<
 export type Connection = PrismaClient | AsyncFunTransaction;
 
 export type ModelsUncapitalize = Uncapitalize<Prisma.ModelName>;
+
+export type TPrismaClientProvider = PrismaClient<
+  Prisma.PrismaClientOptions,
+  never,
+  Prisma.RejectOnNotFound | Prisma.RejectPerOperation
+>;

@@ -1,17 +1,29 @@
+import { inject, injectable } from "tsyringe";
 import { TokenMailStatus, TokenMailType } from "../../enums/TokenMail";
 import { UserStatus } from "../../enums/User";
+import { PrismaClientProvider } from "../../providers";
 import {
-  BaseRepository,
   LoginStatementRepository,
   TokenMailRepository,
   UserRepository,
-} from "../../repositories";
+} from "../../repositories/implementations";
 import { ApiError, AuthJwt, CryptoPassword, Token, UID } from "../../utils";
+import IAuthUseCase from "./IAuthUseCase";
 import IAuthUseCaseDTO from "./IAuthUseCaseDTO";
 
-class AuthUseCase {
+@injectable()
+class AuthUseCase implements IAuthUseCase {
+  constructor(
+    @inject("LoginStatementRepository")
+    private loginStatementRepository: LoginStatementRepository,
+    @inject("TokenMailRepository")
+    private tokenMailRepository: TokenMailRepository,
+    @inject("UserRepository")
+    private userRepository: UserRepository
+  ) {}
+
   async run(data: IAuthUseCaseDTO) {
-    const user = await UserRepository.findByEmail(data.email);
+    const user = await this.userRepository.findByEmail(data.email);
     if (!!!user) throw new ApiError(404, "E-mail não encontrado");
     if (user.status == UserStatus.BLOCKED_ATTEMPT_LOGIN)
       throw new ApiError(
@@ -30,34 +42,42 @@ class AuthUseCase {
       const maxAttempt = 5;
 
       if (attemptLogin >= maxAttempt) {
-        const blockUser = UserRepository.update({
-          where: {
-            id: user.id,
-          },
-          data: {
-            attempt_login: attemptLogin,
-            status: UserStatus.BLOCKED_ATTEMPT_LOGIN,
-          },
-        });
-
         const token = Token.create(999999999);
 
-        const tokenMail = TokenMailRepository.create({
-          data: {
-            id: UID.create(),
-            email: user.email,
-            token: token.hash,
-            type: TokenMailType.BLOCKED_USER_ATTEMPT_LOGIN,
-            status: TokenMailStatus.OPEN,
-            token_expiration: token.expiration,
-            created_at: new Date(),
-          },
-        });
+        const transaction = await PrismaClientProvider.$transaction(
+          async (conn) => {
+            const blockUser = await this.userRepository.update(
+              {
+                where: {
+                  id: user.id,
+                },
+                data: {
+                  attempt_login: attemptLogin,
+                  status: UserStatus.BLOCKED_ATTEMPT_LOGIN,
+                },
+              },
+              conn
+            );
 
-        const transaction = await BaseRepository.transaction([
-          blockUser,
-          tokenMail,
-        ]);
+            const tokenMail = await this.tokenMailRepository.create(
+              {
+                data: {
+                  id: UID.create(),
+                  email: user.email,
+                  token: token.hash,
+                  type: TokenMailType.BLOCKED_USER_ATTEMPT_LOGIN,
+                  status: TokenMailStatus.OPEN,
+                  token_expiration: token.expiration,
+                  created_at: new Date(),
+                },
+              },
+              conn
+            );
+
+            return [blockUser, tokenMail];
+          }
+        );
+
         if (!transaction)
           throw new ApiError(400, "Error ao salvar informações");
 
@@ -76,7 +96,7 @@ class AuthUseCase {
         );
       }
 
-      const updateAttemptLoginUser = UserRepository.update({
+      const updateAttemptLoginUser = this.userRepository.update({
         where: {
           id: user.id,
         },
@@ -100,27 +120,34 @@ class AuthUseCase {
       id: user.id,
     });
 
-    const loginStatement = LoginStatementRepository.create({
-      data: {
-        id: UID.create(),
-        user: user.id,
-        created_at: new Date(),
-      },
-    });
+    const transaction = await PrismaClientProvider.$transaction(
+      async (conn) => {
+        const loginStatement = await this.loginStatementRepository.create(
+          {
+            data: {
+              id: UID.create(),
+              user: user.id,
+              created_at: new Date(),
+            },
+          },
+          conn
+        );
 
-    const updateAttemptLoginUser = UserRepository.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        attempt_login: 0,
-      },
-    });
+        const updateAttemptLoginUser = await this.userRepository.update(
+          {
+            where: {
+              id: user.id,
+            },
+            data: {
+              attempt_login: 0,
+            },
+          },
+          conn
+        );
 
-    const transaction = await BaseRepository.transaction([
-      updateAttemptLoginUser,
-      loginStatement,
-    ]);
+        return [loginStatement, updateAttemptLoginUser];
+      }
+    );
 
     if (!transaction) throw new ApiError(400, "Transaction fail");
 
@@ -128,4 +155,4 @@ class AuthUseCase {
   }
 }
 
-export default new AuthUseCase();
+export default AuthUseCase;

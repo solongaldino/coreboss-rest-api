@@ -1,10 +1,9 @@
 import { JwtBlackList, Prisma } from "@prisma/client";
-import { PrismaClientProvider } from "../../providers";
-import IJwtBlackListRepository from "../IJwtBlackListRepository";
-import MainReporitory from "./MainRepository";
+import { Connection } from "../types";
+import IMainRepository from "./IMainRepository";
 
-class JwtBlackListRepository
-  extends MainReporitory<
+interface IJwtBlackListRepository
+  extends IMainRepository<
     JwtBlackList,
     Prisma.JwtBlackListAggregateArgs,
     Prisma.JwtBlackListCountArgs,
@@ -19,20 +18,11 @@ class JwtBlackListRepository
     Prisma.JwtBlackListUpdateArgs,
     Prisma.JwtBlackListUpdateManyArgs,
     Prisma.JwtBlackListUpsertArgs
-  >
-  implements IJwtBlackListRepository
-{
-  constructor(conn = PrismaClientProvider) {
-    super("jwtBlackList", conn);
-  }
-
-  findByToken(param: JwtBlackList["token"], conn = this.conn) {
-    return conn.jwtBlackList.findFirst({
-      where: {
-        token: param,
-      },
-    });
-  }
+  > {
+  findByToken(
+    param: JwtBlackList["id"],
+    conn: Connection
+  ): Promise<JwtBlackList | null>;
 }
 
-export default JwtBlackListRepository;
+export default IJwtBlackListRepository;

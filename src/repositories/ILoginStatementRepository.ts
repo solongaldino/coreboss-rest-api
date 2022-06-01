@@ -1,10 +1,9 @@
 import { LoginStatement, Prisma } from "@prisma/client";
-import { PrismaClientProvider } from "../../providers";
-import ILoginStatementRepository from "../ILoginStatementRepository";
-import MainReporitory from "./MainRepository";
+import { Connection } from "../types";
+import IMainRepository from "./IMainRepository";
 
-class LoginStatementRepository
-  extends MainReporitory<
+interface ILoginStatementRepository
+  extends IMainRepository<
     LoginStatement,
     Prisma.LoginStatementAggregateArgs,
     Prisma.LoginStatementCountArgs,
@@ -19,20 +18,11 @@ class LoginStatementRepository
     Prisma.LoginStatementUpdateArgs,
     Prisma.LoginStatementUpdateManyArgs,
     Prisma.LoginStatementUpsertArgs
-  >
-  implements ILoginStatementRepository
-{
-  constructor(conn = PrismaClientProvider) {
-    super("loginStatement", conn);
-  }
-
-  findById(param: LoginStatement["id"], conn = this.conn) {
-    return conn.loginStatement.findUnique({
-      where: {
-        id: param,
-      },
-    });
-  }
+  > {
+  findById(
+    param: LoginStatement["id"],
+    conn: Connection
+  ): Promise<LoginStatement | null>;
 }
 
-export default LoginStatementRepository;
+export default ILoginStatementRepository;

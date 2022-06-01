@@ -8,10 +8,11 @@ import {
   UserRepository,
 } from "../../repositories/implementations";
 import { ApiError, AuthJwt, CryptoPassword, Token, UID } from "../../utils";
+import IAuthUseCase from "./IAuthUseCase";
 import IAuthUseCaseDTO from "./IAuthUseCaseDTO";
 
 @injectable()
-class AuthUseCase {
+class AuthUseCase implements IAuthUseCase {
   constructor(
     @inject("LoginStatementRepository")
     private loginStatementRepository: LoginStatementRepository,

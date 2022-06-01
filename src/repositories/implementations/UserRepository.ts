@@ -1,23 +1,27 @@
 import { Prisma, User } from "@prisma/client";
 import { PrismaClientProvider } from "../../providers";
+import IUserRepository from "../IUserRepository";
 import MainReporitory from "./MainRepository";
 
-class UserRepository extends MainReporitory<
-  User,
-  Prisma.UserAggregateArgs,
-  Prisma.UserCountArgs,
-  Prisma.UserCreateArgs,
-  Prisma.UserCreateManyArgs,
-  Prisma.UserDeleteArgs,
-  Prisma.UserDeleteManyArgs,
-  Prisma.UserFindFirstArgs,
-  Prisma.UserFindManyArgs,
-  Prisma.UserFindUniqueArgs,
-  Prisma.UserGroupByArgs,
-  Prisma.UserUpdateArgs,
-  Prisma.UserUpdateManyArgs,
-  Prisma.UserUpsertArgs
-> {
+class UserRepository
+  extends MainReporitory<
+    User,
+    Prisma.UserAggregateArgs,
+    Prisma.UserCountArgs,
+    Prisma.UserCreateArgs,
+    Prisma.UserCreateManyArgs,
+    Prisma.UserDeleteArgs,
+    Prisma.UserDeleteManyArgs,
+    Prisma.UserFindFirstArgs,
+    Prisma.UserFindManyArgs,
+    Prisma.UserFindUniqueArgs,
+    Prisma.UserGroupByArgs,
+    Prisma.UserUpdateArgs,
+    Prisma.UserUpdateManyArgs,
+    Prisma.UserUpsertArgs
+  >
+  implements IUserRepository
+{
   constructor(conn = PrismaClientProvider) {
     super("user", conn);
   }

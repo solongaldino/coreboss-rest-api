@@ -19,9 +19,9 @@ interface IUserRepository
     Prisma.UserUpdateManyArgs,
     Prisma.UserUpsertArgs
   > {
-  findById(param: User["id"], conn: Connection): Promise<User | null>;
+  findById(param: User["id"], conn?: Connection): Promise<User | null>;
 
-  findByEmail(param: User["email"], conn: Connection): Promise<User | null>;
+  findByEmail(param: User["email"], conn?: Connection): Promise<User | null>;
 }
 
 export default IUserRepository;

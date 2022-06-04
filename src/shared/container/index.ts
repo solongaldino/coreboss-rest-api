@@ -1,5 +1,12 @@
 import { container } from "tsyringe";
 import {
+  IAdsRepository,
+  IJwtBlackListRepository,
+  ILoginStatementRepository,
+  ITokenMailRepository,
+  IUserRepository,
+} from "../../repositories";
+import {
   AdsRepository,
   JwtBlackListRepository,
   LoginStatementRepository,
@@ -7,11 +14,17 @@ import {
   UserRepository,
 } from "../../repositories/implementations";
 
-container.registerSingleton("AdsRepository", AdsRepository);
-container.registerSingleton("JwtBlackListRepository", JwtBlackListRepository);
-container.registerSingleton(
+container.registerSingleton<IAdsRepository>("AdsRepository", AdsRepository);
+container.registerSingleton<IJwtBlackListRepository>(
+  "JwtBlackListRepository",
+  JwtBlackListRepository
+);
+container.registerSingleton<ILoginStatementRepository>(
   "LoginStatementRepository",
   LoginStatementRepository
 );
-container.registerSingleton("TokenMailRepository", TokenMailRepository);
-container.registerSingleton("UserRepository", UserRepository);
+container.registerSingleton<ITokenMailRepository>(
+  "TokenMailRepository",
+  TokenMailRepository
+);
+container.registerSingleton<IUserRepository>("UserRepository", UserRepository);

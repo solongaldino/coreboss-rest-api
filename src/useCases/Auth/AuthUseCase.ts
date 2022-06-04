@@ -3,10 +3,10 @@ import { TokenMailStatus, TokenMailType } from "../../enums/TokenMail";
 import { UserStatus } from "../../enums/User";
 import { PrismaClientProvider } from "../../providers";
 import {
-  LoginStatementRepository,
-  TokenMailRepository,
-  UserRepository,
-} from "../../repositories/implementations";
+  ILoginStatementRepository,
+  ITokenMailRepository,
+  IUserRepository,
+} from "../../repositories";
 import { ApiError, AuthJwt, CryptoPassword, Token, UID } from "../../utils";
 import IAuthUseCase from "./IAuthUseCase";
 import IAuthUseCaseDTO from "./IAuthUseCaseDTO";
@@ -15,11 +15,11 @@ import IAuthUseCaseDTO from "./IAuthUseCaseDTO";
 class AuthUseCase implements IAuthUseCase {
   constructor(
     @inject("LoginStatementRepository")
-    private loginStatementRepository: LoginStatementRepository,
+    private loginStatementRepository: ILoginStatementRepository,
     @inject("TokenMailRepository")
-    private tokenMailRepository: TokenMailRepository,
+    private tokenMailRepository: ITokenMailRepository,
     @inject("UserRepository")
-    private userRepository: UserRepository
+    private userRepository: IUserRepository
   ) {}
 
   async run(data: IAuthUseCaseDTO) {

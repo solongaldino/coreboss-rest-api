@@ -1,18 +1,24 @@
 import { NextFunction, Request, Response } from "express";
-import LogoutUseCase from "./LogoutUseCase";
+import { inject, singleton } from "tsyringe";
+import ILogoutUseCase from "./ILogoutUseCase";
 
-class LogoutController {
+@singleton()
+export default class LogoutController {
+  constructor(
+    @inject("LogoutUseCase")
+    private logoutUseCase: ILogoutUseCase
+  ) {}
+
   public async handle(req: Request, res: Response, next: NextFunction) {
     const { xAccessToken, userId } = req.body;
     try {
-      await LogoutUseCase.run({
+      await this.logoutUseCase.run({
         xAccessToken,
         userId,
       });
-      return res.status(200);
+      return res.status(204);
     } catch (error) {
       return next(error);
     }
   }
 }
-export default new LogoutController();

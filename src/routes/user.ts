@@ -53,10 +53,11 @@ userRouter.post("/auth", JoiValidator(authRequestSchema), (req, res, next) =>
   authController.handle(req, res, next)
 );
 
+const logoutController = container.resolve(LogoutController);
 userRouter.post(
   "/logout",
   JoiValidator(logoutRequestSchema),
-  LogoutController.handle
+  (req, res, next) => logoutController.handle(req, res, next)
 );
 
 userRouter.post(

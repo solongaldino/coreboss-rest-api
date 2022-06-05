@@ -1,16 +1,26 @@
-import { JwtBlackListRepository, UserRepository } from "../../repositories";
-import { ApiError, UID } from "../../utils";
+import { IJwtBlackListRepository, IUserRepository } from "@repositories/prisma";
+import { ApiError, UID } from "@utils";
+import { inject, injectable } from "tsyringe";
+import ILogoutUseCase from "./ILogoutUseCase";
 import ILogoutUseCaseDTO from "./ILogoutUseCaseDTO";
 
-class LogoutUseCase {
+@injectable()
+export default class LogoutUseCase implements ILogoutUseCase {
+  constructor(
+    @inject("UserRepository")
+    private userRepository: IUserRepository,
+    @inject("JwtBlackListRepository")
+    private jwtBlackListRepository: IJwtBlackListRepository
+  ) {}
+
   async run(data: ILogoutUseCaseDTO) {
     const { userId, xAccessToken } = data;
 
-    const user = await UserRepository.findById(userId);
+    const user = await this.userRepository.findById(userId);
 
     if (!user) throw new ApiError(400, "User not found");
 
-    const response = await JwtBlackListRepository.create({
+    const response = await this.jwtBlackListRepository.create({
       data: {
         id: UID.create(),
         user: user.id,
@@ -22,4 +32,3 @@ class LogoutUseCase {
     if (!response) throw new ApiError(400, "Logout fail");
   }
 }
-export default new LogoutUseCase();

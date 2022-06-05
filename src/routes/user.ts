@@ -77,10 +77,11 @@ userRouter.post(
   UpdatePasswordController.handle
 );
 
+const cancelAccountController = container.resolve(CancelAccountController);
 userRouter.post(
   "/cancelAccount",
   JoiValidator(cancelAccountRequestSchema),
-  CancelAccountController.handle
+  (req, res, next) => cancelAccountController.handle(req, res, next)
 );
 
 export default userRouter;

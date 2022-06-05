@@ -19,7 +19,7 @@ interface IAdsRepository
     Prisma.AdsUpdateManyArgs,
     Prisma.AdsUpsertArgs
   > {
-  findById(param: Ads["id"], conn: Connection): Promise<Ads | null>;
+  findById(param: Ads["id"], conn?: Connection): Promise<Ads | null>;
 }
 
 export default IAdsRepository;

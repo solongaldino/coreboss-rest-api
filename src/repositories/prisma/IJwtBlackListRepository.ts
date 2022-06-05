@@ -1,5 +1,5 @@
 import { JwtBlackList, Prisma } from "@prisma/client";
-import { Connection } from "../types";
+import { Connection } from "@types";
 import IMainRepository from "./IMainRepository";
 
 interface IJwtBlackListRepository
@@ -21,7 +21,7 @@ interface IJwtBlackListRepository
   > {
   findByToken(
     param: JwtBlackList["id"],
-    conn: Connection
+    conn?: Connection
   ): Promise<JwtBlackList | null>;
 }
 

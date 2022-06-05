@@ -1,7 +1,7 @@
 import "reflect-metadata";
-import "./shared/container";
+import "@shared/container";
 import express from "express";
-import routes from "./routes";
+import routes from "@routes";
 import cors from "cors";
 
 const app = express();

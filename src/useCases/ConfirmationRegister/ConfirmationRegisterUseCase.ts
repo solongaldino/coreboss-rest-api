@@ -1,16 +1,24 @@
-import { TokenMailStatus, TokenMailType } from "../../enums/TokenMail";
-import { UserStatus, UserType } from "../../enums/User";
-import {
-  BaseRepository,
-  TokenMailRepository,
-  UserRepository,
-} from "../../repositories";
-import { ApiError, Token, UID } from "../../utils";
+import { TokenMailStatus, TokenMailType } from "@enums/TokenMail";
+import { UserStatus, UserType } from "@enums/User";
+import { PrismaClientProvider } from "@providers";
+import { ITokenMailRepository, IUserRepository } from "@repositories/prisma";
+import { ApiError, Token, UID } from "@utils";
+import { inject, injectable } from "tsyringe";
+import IConfirmationRegisterUseCase from "./IConfirmationRegisterUseCase";
 import IConfirmationRegisterUseCaseDTO from "./IConfirmationRegisterUseCaseDTO";
 
-class ConfirmationRegisterUseCase {
+@injectable()
+export default class ConfirmationRegisterUseCase
+  implements IConfirmationRegisterUseCase
+{
+  constructor(
+    @inject("TokenMailRepository")
+    private tokenMailRepository: ITokenMailRepository,
+    @inject("UserRepository") private userRepository: IUserRepository
+  ) {}
+
   async run(obj: IConfirmationRegisterUseCaseDTO) {
-    const tokenMail = await TokenMailRepository.findByToken(obj.token);
+    const tokenMail = await this.tokenMailRepository.findByToken(obj.token);
 
     if (!tokenMail) throw new ApiError(400, "Token não existe");
 
@@ -18,7 +26,7 @@ class ConfirmationRegisterUseCase {
       throw new ApiError(400, "Token expirado");
 
     if (Token.isExpired(tokenMail.token_expiration)) {
-      await TokenMailRepository.update({
+      await this.tokenMailRepository.update({
         where: {
           id: tokenMail.id,
         },
@@ -45,34 +53,40 @@ class ConfirmationRegisterUseCase {
 
     if (!tokenMail.details) throw new ApiError(400, "Password not found");
 
-    const createUser = UserRepository.create({
-      data: {
-        id: UID.create(),
-        email: tokenMail.email,
-        password: JSON.parse(tokenMail.details).password,
-        status: UserStatus.ACTIVE,
-        type: userType(tokenMail.type as TokenMailType),
-        genre: "",
-        attempt_login: 0,
-        created_at: new Date(),
-      },
-    });
+    try {
+      await PrismaClientProvider.$transaction(async (conn) => {
+        const createUser = this.userRepository.create(
+          {
+            data: {
+              id: UID.create(),
+              email: tokenMail.email,
+              password: JSON.parse(tokenMail.details).password,
+              status: UserStatus.ACTIVE,
+              type: userType(tokenMail.type as TokenMailType),
+              genre: "",
+              attempt_login: 0,
+              created_at: new Date(),
+            },
+          },
+          conn
+        );
 
-    const updateTokenMail = TokenMailRepository.update({
-      where: {
-        id: tokenMail.id,
-      },
-      data: {
-        status: TokenMailStatus.FINISHED,
-      },
-    });
+        const updateTokenMail = this.tokenMailRepository.update(
+          {
+            where: {
+              id: tokenMail.id,
+            },
+            data: {
+              status: TokenMailStatus.FINISHED,
+            },
+          },
+          conn
+        );
 
-    const transaction = await BaseRepository.transaction([
-      createUser,
-      updateTokenMail,
-    ]);
-
-    if (!transaction) throw new ApiError(400, "Transaction fail");
+        return [createUser, updateTokenMail];
+      });
+    } catch (error) {
+      throw new ApiError(400, error.message);
+    }
   }
 }
-export default new ConfirmationRegisterUseCase();

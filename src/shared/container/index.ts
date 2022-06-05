@@ -5,16 +5,16 @@ import {
   ILoginStatementRepository,
   ITokenMailRepository,
   IUserRepository,
-} from "../../repositories";
+} from "@repositories/prisma";
 import {
   AdsRepository,
   JwtBlackListRepository,
   LoginStatementRepository,
   TokenMailRepository,
   UserRepository,
-} from "../../repositories/prisma/implementations";
-import AuthUseCase from "../../useCases/Auth/AuthUseCase";
-import IAuthUseCase from "../../useCases/Auth/IAuthUseCase";
+} from "@repositories/prisma/implementations";
+import AuthUseCase from "@useCases/Auth/AuthUseCase";
+import IAuthUseCase from "@useCases/Auth/IAuthUseCase";
 
 //Repositories
 container.registerSingleton<IAdsRepository>("AdsRepository", AdsRepository);

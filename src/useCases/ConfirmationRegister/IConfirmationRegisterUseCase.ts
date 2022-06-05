@@ -1,1 +1,5 @@
-export default interface IConfirmationRegisterUseCaseDTO {}
+import IConfirmationRegisterUseCaseDTO from "./IConfirmationRegisterUseCaseDTO";
+
+export default interface IConfirmationRegisterUseCase {
+  run(data: IConfirmationRegisterUseCaseDTO): Promise<void>;
+}

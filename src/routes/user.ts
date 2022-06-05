@@ -33,10 +33,11 @@ userRouter.post(
   (req, res, next) => isRegisteredEmailController.handle(req, res, next)
 );
 
+const registerController = container.resolve(RegisterController);
 userRouter.post(
   "/register",
   JoiValidator(registerRequestSchema),
-  RegisterController.handle
+  (req, res, next) => registerController.handle(req, res, next)
 );
 
 const confirmationRegisterController = container.resolve(

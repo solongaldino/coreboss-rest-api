@@ -33,7 +33,4 @@ container.registerSingleton<ITokenMailRepository>(
 container.registerSingleton<IUserRepository>("UserRepository", UserRepository);
 
 //UseCases
-container.registerSingleton<IAuthUseCase>(
-  "AuthUseCase",
-  delay(() => AuthUseCase)
-);
+container.registerSingleton<IAuthUseCase>("AuthUseCase", AuthUseCase);

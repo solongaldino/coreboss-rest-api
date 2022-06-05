@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import IAuthResponseDTO from "./IAuthResponseDTO";
-import { container, inject, singleton } from "tsyringe";
+import { inject, singleton } from "tsyringe";
 import IAuthUseCase from "./IAuthUseCase";
 @singleton()
-class AuthController {
+export default class AuthController {
   constructor(@inject("AuthUseCase") private authUseCase: IAuthUseCase) {}
 
   public async handle(req: Request, res: Response, next: NextFunction) {
@@ -23,5 +23,3 @@ class AuthController {
     }
   }
 }
-
-export default container.resolve(AuthController);

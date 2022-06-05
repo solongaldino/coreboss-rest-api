@@ -1,19 +1,31 @@
-import { TokenMailStatus, TokenMailType } from "../../enums/TokenMail";
-import { TokenMailRepository, UserRepository } from "../../repositories";
-import { ApiError, Token, UID } from "../../utils";
+import { ITokenMailRepository, IUserRepository } from "@repositories/prisma";
+import { inject, injectable } from "tsyringe";
+import { TokenMailStatus, TokenMailType } from "@enums/TokenMail";
+import { ApiError, Token, UID } from "@utils";
+import IPasswordRecoveryUseCase from "./IPasswordRecoveryUseCase";
 import IPasswordRecoveryUseCaseDTO from "./IPasswordRecoveryUseCaseDTO";
 
-class PasswordRecoveryUseCase {
+@injectable()
+export default class PasswordRecoveryUseCase
+  implements IPasswordRecoveryUseCase
+{
+  constructor(
+    @inject("UserRepository")
+    private userRepository: IUserRepository,
+    @inject("TokenMailRepository")
+    private tokenMailRepository: ITokenMailRepository
+  ) {}
+
   async run(data: IPasswordRecoveryUseCaseDTO) {
     const { email } = data;
 
-    const user = await UserRepository.findByEmail(email);
+    const user = await this.userRepository.findByEmail(email);
 
     if (!!!user) throw new ApiError(400, "E-mail não encontrado");
 
     const token = Token.create();
 
-    const tokenMail = await TokenMailRepository.create({
+    const tokenMail = await this.tokenMailRepository.create({
       data: {
         id: UID.create(),
         email: email,
@@ -35,4 +47,3 @@ class PasswordRecoveryUseCase {
 
   // Envia e-mail com instruções e link para formulario de nova senha}
 }
-export default new PasswordRecoveryUseCase();

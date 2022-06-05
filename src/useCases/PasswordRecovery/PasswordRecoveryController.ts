@@ -1,15 +1,21 @@
 import { NextFunction, Request, Response } from "express";
-import PasswordRecoveryUseCase from "./PasswordRecoveryUseCase";
+import { inject, singleton } from "tsyringe";
+import IPasswordRecoveryUseCase from "./IPasswordRecoveryUseCase";
 
-class PassworRecoveryController {
+@singleton()
+export default class PassworRecoveryController {
+  constructor(
+    @inject("PasswordRecoveryUseCase")
+    private passwordRecoveryUseCase: IPasswordRecoveryUseCase
+  ) {}
+
   public async handle(req: Request, res: Response, next: NextFunction) {
     const { email } = req.body;
     try {
-      await PasswordRecoveryUseCase.run(email);
-      return res.status(200);
+      await this.passwordRecoveryUseCase.run(email);
+      return res.status(204);
     } catch (error) {
       return next(error);
     }
   }
 }
-export default new PassworRecoveryController();

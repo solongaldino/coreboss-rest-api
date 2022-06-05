@@ -60,10 +60,13 @@ userRouter.post(
   (req, res, next) => logoutController.handle(req, res, next)
 );
 
+const passwordRecoveryController = container.resolve(
+  PasswordRecoveryController
+);
 userRouter.post(
   "/passwordRecovery",
   JoiValidator(passwordRecoveryRequestSchema),
-  PasswordRecoveryController.handle
+  (req, res, next) => passwordRecoveryController.handle(req, res, next)
 );
 
 const confirmPasswordRecoveryController = container.resolve(

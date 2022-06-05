@@ -1,24 +1,25 @@
 import { NextFunction, Request, Response } from "express";
-import { ApiError } from "../../utils";
-import GetAdsByIdUseCase from "./GetAdsByIdUseCase";
+import { inject, singleton } from "tsyringe";
+import IGetAdsByIdUseCase from "./IGetAdsByIdUseCase";
 import IGetAdsByIdResponseDTO from "./IGetAdsByIdResponseDTO";
-class GetAdsByIdController {
+
+@singleton()
+export default class GetAdsByIdController {
+  constructor(
+    @inject("GetAdsByIdUseCase")
+    private getAdsByIdUseCase: IGetAdsByIdUseCase
+  ) {}
+
   async handle(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
-
     try {
-      const data = await GetAdsByIdUseCase.run({
-        id,
-      });
-
-      if (!data) throw new ApiError(400, "Anúncio não encontrado");
+      const data = await this.getAdsByIdUseCase.run({ id });
 
       const response: IGetAdsByIdResponseDTO = { ads: data };
 
-      return res.send(response);
+      return res.status(200).send(response);
     } catch (error) {
       return next(error);
     }
   }
 }
-export default new GetAdsByIdController();

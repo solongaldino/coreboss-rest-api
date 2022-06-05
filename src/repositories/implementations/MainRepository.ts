@@ -1,6 +1,5 @@
 //@ts-nocheck
 import { Connection, ModelsUncapitalize } from "../../types";
-
 class MainReporitory<
   Entity,
   AggregateArgs,
@@ -16,7 +15,8 @@ class MainReporitory<
   UpdateArgs,
   UpdateManyArgs,
   UpsertArgs
-> {
+> implements IMainRepository
+{
   constructor(private model: ModelsUncapitalize, protected conn: Connection) {}
 
   aggregate(obj: AggregateArgs, conn = this.conn): Promise<Entity | null> {

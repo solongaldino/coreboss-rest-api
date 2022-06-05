@@ -3,6 +3,11 @@ import { TokenMailStatus, TokenMailType } from "../../enums/TokenMail";
 import { UserStatus } from "../../enums/User";
 import { PrismaClientProvider } from "../../providers";
 import {
+  ILoginStatementRepository,
+  ITokenMailRepository,
+  IUserRepository,
+} from "../../repositories";
+import {
   LoginStatementRepository,
   TokenMailRepository,
   UserRepository,
@@ -11,15 +16,16 @@ import { ApiError, AuthJwt, CryptoPassword, Token, UID } from "../../utils";
 import IAuthUseCase from "./IAuthUseCase";
 import IAuthUseCaseDTO from "./IAuthUseCaseDTO";
 
+const MAX_ATTEMPT_LOGIN: number = 5;
+
 @injectable()
-class AuthUseCase implements IAuthUseCase {
+export default class AuthUseCase implements AuthUseCase {
   constructor(
     @inject("LoginStatementRepository")
-    private loginStatementRepository: LoginStatementRepository,
+    private loginStatementRepository: ILoginStatementRepository,
     @inject("TokenMailRepository")
-    private tokenMailRepository: TokenMailRepository,
-    @inject("UserRepository")
-    private userRepository: UserRepository
+    private tokenMailRepository: ITokenMailRepository,
+    @inject("UserRepository") private userRepository: IUserRepository
   ) {}
 
   async run(data: IAuthUseCaseDTO) {
@@ -39,7 +45,7 @@ class AuthUseCase implements IAuthUseCase {
     if (!isValidPassword) {
       const attemptLogin = user.attempt_login + 1;
 
-      const maxAttempt = 5;
+      const maxAttempt = MAX_ATTEMPT_LOGIN;
 
       if (attemptLogin >= maxAttempt) {
         const token = Token.create(999999999);
@@ -154,5 +160,3 @@ class AuthUseCase implements IAuthUseCase {
     return xAccessToken;
   }
 }
-
-export default AuthUseCase;

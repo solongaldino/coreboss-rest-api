@@ -2,7 +2,6 @@ import { Ads, Prisma } from "@prisma/client";
 import { PrismaClientProvider } from "../../providers";
 import IAdsRepository from "../IAdsRepository";
 import MainReporitory from "./MainRepository";
-
 class AdsRepository
   extends MainReporitory<
     Ads,

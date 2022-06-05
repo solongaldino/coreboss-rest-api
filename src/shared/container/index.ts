@@ -1,4 +1,11 @@
-import { container } from "tsyringe";
+import { container, delay } from "tsyringe";
+import {
+  IAdsRepository,
+  IJwtBlackListRepository,
+  ILoginStatementRepository,
+  ITokenMailRepository,
+  IUserRepository,
+} from "../../repositories";
 import {
   AdsRepository,
   JwtBlackListRepository,
@@ -6,12 +13,24 @@ import {
   TokenMailRepository,
   UserRepository,
 } from "../../repositories/implementations";
+import AuthUseCase from "../../useCases/Auth/AuthUseCase";
+import IAuthUseCase from "../../useCases/Auth/IAuthUseCase";
 
-container.registerSingleton("AdsRepository", AdsRepository);
-container.registerSingleton("JwtBlackListRepository", JwtBlackListRepository);
-container.registerSingleton(
+//Repositories
+container.registerSingleton<IAdsRepository>("AdsRepository", AdsRepository);
+container.registerSingleton<IJwtBlackListRepository>(
+  "JwtBlackListRepository",
+  JwtBlackListRepository
+);
+container.registerSingleton<ILoginStatementRepository>(
   "LoginStatementRepository",
   LoginStatementRepository
 );
-container.registerSingleton("TokenMailRepository", TokenMailRepository);
-container.registerSingleton("UserRepository", UserRepository);
+container.registerSingleton<ITokenMailRepository>(
+  "TokenMailRepository",
+  TokenMailRepository
+);
+container.registerSingleton<IUserRepository>("UserRepository", UserRepository);
+
+//UseCases
+container.registerSingleton<IAuthUseCase>("AuthUseCase", AuthUseCase);

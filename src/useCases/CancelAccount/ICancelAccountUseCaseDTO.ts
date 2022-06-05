@@ -1,4 +1,4 @@
-export default interface ICancelAccountUseCase {
+export default interface ICancelAccountUseCaseDTO {
   password: string;
   userId: string;
 }

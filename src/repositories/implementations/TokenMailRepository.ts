@@ -2,7 +2,6 @@ import { TokenMail, Prisma } from "@prisma/client";
 import { PrismaClientProvider } from "../../providers";
 import ITokenMailRepository from "../ITokenMailRepository";
 import MainReporitory from "./MainRepository";
-
 class TokenMailRepository
   extends MainReporitory<
     TokenMail,

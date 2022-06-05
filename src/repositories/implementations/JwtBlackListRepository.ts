@@ -2,7 +2,6 @@ import { JwtBlackList, Prisma } from "@prisma/client";
 import { PrismaClientProvider } from "../../providers";
 import IJwtBlackListRepository from "../IJwtBlackListRepository";
 import MainReporitory from "./MainRepository";
-
 class JwtBlackListRepository
   extends MainReporitory<
     JwtBlackList,

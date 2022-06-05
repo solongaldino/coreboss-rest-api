@@ -20,6 +20,7 @@ import { unlockLoginRequestSchema } from "../useCases/UnlockLogin/UnlockLoginReq
 import UnlockLoginController from "../useCases/UnlockLogin/UnlockLoginController";
 import { updatePasswordRequestSchema } from "../useCases/UpdatePassword/UpdatePasswordRequestSchema";
 import UpdatePasswordController from "../useCases/UpdatePassword/UpdatePasswordController";
+import { container } from "tsyringe";
 
 const userRouter = Router();
 
@@ -41,10 +42,9 @@ userRouter.post(
   ConfirmationRegisterController.handle
 );
 
-userRouter.post(
-  "/auth",
-  JoiValidator(authRequestSchema),
-  AuthController.handle
+const authController = container.resolve(AuthController);
+userRouter.post("/auth", JoiValidator(authRequestSchema), (req, res, next) =>
+  authController.handle(req, res, next)
 );
 
 userRouter.post(
@@ -77,10 +77,11 @@ userRouter.post(
   UpdatePasswordController.handle
 );
 
+const cancelAccountController = container.resolve(CancelAccountController);
 userRouter.post(
   "/cancelAccount",
   JoiValidator(cancelAccountRequestSchema),
-  CancelAccountController.handle
+  (req, res, next) => cancelAccountController.handle(req, res, next)
 );
 
 export default userRouter;

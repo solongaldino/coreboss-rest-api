@@ -1,18 +1,23 @@
 import { NextFunction, Request, Response } from "express";
-import CancelAccountUseCase from "./CancelAccountUseCase";
+import { inject, singleton } from "tsyringe";
+import ICancelAccountUseCase from "./ICancelAccountUseCase";
+@singleton()
+export default class CancelAccountController {
+  constructor(
+    @inject("CancelAccountUseCase")
+    private cancelAccountUseCase: ICancelAccountUseCase
+  ) {}
 
-class CancelAccountController {
   public async handle(req: Request, res: Response, next: NextFunction) {
     const { password, userId } = req.body;
     try {
-      await CancelAccountUseCase.run({
+      await this.cancelAccountUseCase.run({
         password,
         userId,
       });
-      return res.status(200);
+      return res.status(204);
     } catch (error) {
       return next(error);
     }
   }
 }
-export default new CancelAccountController();

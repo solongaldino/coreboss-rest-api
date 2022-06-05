@@ -1,11 +1,20 @@
+import { inject, injectable } from "tsyringe";
 import { TokenMailStatus, TokenMailType } from "../../enums/TokenMail";
-import { TokenMailRepository, UserRepository } from "../../repositories";
+import { ITokenMailRepository, IUserRepository } from "../../repositories";
 import { ApiError, CryptoPassword, Token, UID } from "../../utils";
-import ICancelAccountUseCase from "./ICancelAccountUseCaseDTO";
+import ICancelAccountUseCase from "./ICancelAccountUseCase";
+import ICancelAccountUseCaseDTO from "./ICancelAccountUseCaseDTO";
+@injectable()
+export default class CancelAccountUseCase implements ICancelAccountUseCase {
+  constructor(
+    @inject("TokenMailRepository")
+    private tokenMailRepository: ITokenMailRepository,
+    @inject("UserRepository")
+    private userRepository: IUserRepository
+  ) {}
 
-class CancelAccountUseCase {
-  async run(data: ICancelAccountUseCase) {
-    const user = await UserRepository.findById(data.userId);
+  async run(data: ICancelAccountUseCaseDTO) {
+    const user = await this.userRepository.findById(data.userId);
 
     if (!!!user) throw new ApiError(400, "User not found");
 
@@ -18,7 +27,7 @@ class CancelAccountUseCase {
 
     const token = Token.create();
 
-    const tokenMail = await TokenMailRepository.create({
+    const tokenMail = await this.tokenMailRepository.create({
       data: {
         id: UID.create(),
         email: user.email,
@@ -40,4 +49,3 @@ class CancelAccountUseCase {
     // Envia e-mail com instruções e link para formulario de nova senha
   }
 }
-export default new CancelAccountUseCase();

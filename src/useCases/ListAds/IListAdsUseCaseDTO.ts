@@ -1,4 +1,4 @@
-export default interface IListAdsUseCase {
+export default interface IListAdsUseCaseDTO {
   offset: number;
   size: number;
 }

@@ -1,8 +1,9 @@
 import { TokenMail, Prisma } from "@prisma/client";
+import { injectable } from "tsyringe";
 import { PrismaClientProvider } from "../../providers";
 import ITokenMailRepository from "../ITokenMailRepository";
 import MainReporitory from "./MainRepository";
-
+@injectable()
 class TokenMailRepository
   extends MainReporitory<
     TokenMail,

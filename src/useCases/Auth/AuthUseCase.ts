@@ -11,6 +11,8 @@ import { ApiError, AuthJwt, CryptoPassword, Token, UID } from "../../utils";
 import IAuthUseCase from "./IAuthUseCase";
 import IAuthUseCaseDTO from "./IAuthUseCaseDTO";
 
+const MAX_ATTEMPT_LOGIN: number = 5;
+
 @injectable()
 class AuthUseCase implements IAuthUseCase {
   constructor(
@@ -39,7 +41,7 @@ class AuthUseCase implements IAuthUseCase {
     if (!isValidPassword) {
       const attemptLogin = user.attempt_login + 1;
 
-      const maxAttempt = 5;
+      const maxAttempt = MAX_ATTEMPT_LOGIN;
 
       if (attemptLogin >= maxAttempt) {
         const token = Token.create(999999999);

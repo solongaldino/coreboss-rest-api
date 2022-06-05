@@ -1,15 +1,16 @@
 import { NextFunction, Request, Response } from "express";
 import IAuthResponseDTO from "./IAuthResponseDTO";
-import AuthUseCase from "./AuthUseCase";
-import { container } from "tsyringe";
+import { container, inject, singleton } from "tsyringe";
+import IAuthUseCase from "./IAuthUseCase";
+@singleton()
 class AuthController {
+  constructor(@inject("AuthUseCase") private authUseCase: IAuthUseCase) {}
+
   async handle(req: Request, res: Response, next: NextFunction) {
     try {
       const { email, password } = req.body;
 
-      const authUseCase = container.resolve(AuthUseCase);
-
-      const dataAuth = await authUseCase.run({
+      const dataAuth = await this.authUseCase.run({
         email,
         password,
       });
@@ -22,4 +23,4 @@ class AuthController {
     }
   }
 }
-export default new AuthController();
+export default container.resolve(AuthController);

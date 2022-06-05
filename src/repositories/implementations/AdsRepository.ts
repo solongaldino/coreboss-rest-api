@@ -1,8 +1,9 @@
 import { Ads, Prisma } from "@prisma/client";
+import { injectable } from "tsyringe";
 import { PrismaClientProvider } from "../../providers";
 import IAdsRepository from "../IAdsRepository";
 import MainReporitory from "./MainRepository";
-
+@injectable()
 class AdsRepository
   extends MainReporitory<
     Ads,

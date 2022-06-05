@@ -1,8 +1,9 @@
 import { JwtBlackList, Prisma } from "@prisma/client";
+import { injectable } from "tsyringe";
 import { PrismaClientProvider } from "../../providers";
 import IJwtBlackListRepository from "../IJwtBlackListRepository";
 import MainReporitory from "./MainRepository";
-
+@injectable()
 class JwtBlackListRepository
   extends MainReporitory<
     JwtBlackList,

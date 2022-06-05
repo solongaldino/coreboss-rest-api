@@ -1,8 +1,9 @@
 import { LoginStatement, Prisma } from "@prisma/client";
+import { injectable } from "tsyringe";
 import { PrismaClientProvider } from "../../providers";
 import ILoginStatementRepository from "../ILoginStatementRepository";
 import MainReporitory from "./MainRepository";
-
+@injectable()
 class LoginStatementRepository
   extends MainReporitory<
     LoginStatement,

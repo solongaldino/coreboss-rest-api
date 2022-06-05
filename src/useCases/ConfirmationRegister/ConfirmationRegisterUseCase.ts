@@ -73,8 +73,6 @@ class ConfirmationRegisterUseCase {
     ]);
 
     if (!transaction) throw new ApiError(400, "Transaction fail");
-
-    return transaction;
   }
 }
 export default new ConfirmationRegisterUseCase();

@@ -24,10 +24,13 @@ import { container } from "tsyringe";
 
 const userRouter = Router();
 
+const isRegisteredEmailController = container.resolve(
+  IsRegisteredEmailController
+);
 userRouter.post(
   "/isRegisteredEmail",
   JoiValidator(isRegisteredEmailRequestSchema),
-  IsRegisteredEmailController.handle
+  (req, res, next) => isRegisteredEmailController.handle(req, res, next)
 );
 
 userRouter.post(

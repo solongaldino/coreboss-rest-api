@@ -1,15 +1,21 @@
 import { NextFunction, Request, Response } from "express";
-import IsRegisteredEmailUseCase from "./IsRegisteredEmailUseCase";
+import { inject, singleton } from "tsyringe";
+import IIsRegisteredEmailUseCase from "./IIsRegisteredEmailUseCase";
 
-class IsRegisteredEmailController {
+@singleton()
+export default class IsRegisteredEmailController {
+  constructor(
+    @inject("IsRegisteredEmailUseCase")
+    private isRegisteredEmailUseCase: IIsRegisteredEmailUseCase
+  ) {}
+
   public async handle(req: Request, res: Response, next: NextFunction) {
     try {
       const { email } = req.body;
-      await IsRegisteredEmailUseCase.run({ email });
-      return res.status(200);
+      await this.isRegisteredEmailUseCase.run({ email });
+      return res.status(204);
     } catch (error) {
       return next(error);
     }
   }
 }
-export default new IsRegisteredEmailController();

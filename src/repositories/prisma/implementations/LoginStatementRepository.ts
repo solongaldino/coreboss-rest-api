@@ -1,5 +1,5 @@
 import { LoginStatement, Prisma } from "@prisma/client";
-import { PrismaClientProvider } from "../../providers";
+import { PrismaClientProvider } from "../../../providers";
 import ILoginStatementRepository from "../ILoginStatementRepository";
 import MainReporitory from "./MainRepository";
 class LoginStatementRepository

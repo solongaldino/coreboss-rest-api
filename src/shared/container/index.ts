@@ -12,7 +12,7 @@ import {
   LoginStatementRepository,
   TokenMailRepository,
   UserRepository,
-} from "../../repositories/implementations";
+} from "../../repositories/prisma/implementations";
 import AuthUseCase from "../../useCases/Auth/AuthUseCase";
 import IAuthUseCase from "../../useCases/Auth/IAuthUseCase";
 

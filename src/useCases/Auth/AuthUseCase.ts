@@ -11,7 +11,7 @@ import {
   LoginStatementRepository,
   TokenMailRepository,
   UserRepository,
-} from "../../repositories/implementations";
+} from "../../repositories/prisma/implementations";
 import { ApiError, AuthJwt, CryptoPassword, Token, UID } from "../../utils";
 import IAuthUseCase from "./IAuthUseCase";
 import IAuthUseCaseDTO from "./IAuthUseCaseDTO";

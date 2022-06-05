@@ -1,5 +1,5 @@
 //@ts-nocheck
-import { Connection, ModelsUncapitalize } from "../../types";
+import { Connection, ModelsUncapitalize } from "../../../types";
 class MainReporitory<
   Entity,
   AggregateArgs,

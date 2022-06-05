@@ -7,6 +7,11 @@ import {
   ITokenMailRepository,
   IUserRepository,
 } from "../../repositories";
+import {
+  LoginStatementRepository,
+  TokenMailRepository,
+  UserRepository,
+} from "../../repositories/implementations";
 import { ApiError, AuthJwt, CryptoPassword, Token, UID } from "../../utils";
 import IAuthUseCase from "./IAuthUseCase";
 import IAuthUseCaseDTO from "./IAuthUseCaseDTO";
@@ -14,14 +19,13 @@ import IAuthUseCaseDTO from "./IAuthUseCaseDTO";
 const MAX_ATTEMPT_LOGIN: number = 5;
 
 @injectable()
-class AuthUseCase implements IAuthUseCase {
+export default class AuthUseCase implements AuthUseCase {
   constructor(
     @inject("LoginStatementRepository")
     private loginStatementRepository: ILoginStatementRepository,
     @inject("TokenMailRepository")
     private tokenMailRepository: ITokenMailRepository,
-    @inject("UserRepository")
-    private userRepository: IUserRepository
+    @inject("UserRepository") private userRepository: IUserRepository
   ) {}
 
   async run(data: IAuthUseCaseDTO) {
@@ -156,5 +160,3 @@ class AuthUseCase implements IAuthUseCase {
     return xAccessToken;
   }
 }
-
-export default AuthUseCase;

@@ -1,8 +1,5 @@
 //@ts-nocheck
-import { injectable } from "tsyringe";
-import { IMainRepository } from "..";
 import { Connection, ModelsUncapitalize } from "../../types";
-@injectable()
 class MainReporitory<
   Entity,
   AggregateArgs,

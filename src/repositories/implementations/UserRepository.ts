@@ -1,9 +1,7 @@
 import { Prisma, User } from "@prisma/client";
-import { injectable } from "tsyringe";
 import { PrismaClientProvider } from "../../providers";
 import IUserRepository from "../IUserRepository";
 import MainReporitory from "./MainRepository";
-@injectable()
 class UserRepository
   extends MainReporitory<
     User,

@@ -6,7 +6,7 @@ import IAuthUseCase from "./IAuthUseCase";
 class AuthController {
   constructor(@inject("AuthUseCase") private authUseCase: IAuthUseCase) {}
 
-  async handle(req: Request, res: Response, next: NextFunction) {
+  public async handle(req: Request, res: Response, next: NextFunction) {
     try {
       const { email, password } = req.body;
 
@@ -23,4 +23,5 @@ class AuthController {
     }
   }
 }
+
 export default container.resolve(AuthController);

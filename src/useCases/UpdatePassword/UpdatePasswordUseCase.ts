@@ -1,10 +1,18 @@
-import { UserRepository } from "../../repositories";
-import { ApiError, CryptoPassword } from "../../utils";
+import { IUserRepository } from "@repositories/prisma";
+import { ApiError, CryptoPassword } from "@utils";
+import { inject, injectable } from "tsyringe";
+import IUpdatePasswordUseCase from "./IUpdatePasswordUseCase";
 import IUpdatePasswordUseCaseDTO from "./IUpdatePasswordUseCaseDTO";
 
-class UpdatePasswordUseCase {
+@injectable()
+export default class UpdatePasswordUseCase implements IUpdatePasswordUseCase {
+  constructor(
+    @inject("UserRepository")
+    private userRepository: IUserRepository
+  ) {}
+
   async run(data: IUpdatePasswordUseCaseDTO) {
-    const user = await UserRepository.findById(data.userId);
+    const user = await this.userRepository.findById(data.userId);
 
     if (!!!user) throw new ApiError(400, "User not found");
 
@@ -17,7 +25,7 @@ class UpdatePasswordUseCase {
 
     const passwordEc = CryptoPassword.generationHash(data.newPassword);
 
-    return await UserRepository.update({
+    await this.userRepository.update({
       where: {
         id: data.userId,
       },
@@ -27,4 +35,3 @@ class UpdatePasswordUseCase {
     });
   }
 }
-export default new UpdatePasswordUseCase();

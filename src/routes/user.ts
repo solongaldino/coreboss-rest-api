@@ -79,16 +79,18 @@ userRouter.post(
   (req, res, next) => confirmPasswordRecoveryController.handle(req, res, next)
 );
 
+const unlockLoginController = container.resolve(UnlockLoginController);
 userRouter.post(
   "/unlockLogin",
   JoiValidator(unlockLoginRequestSchema),
-  UnlockLoginController.handle
+  (req, res, next) => unlockLoginController.handle(req, res, next)
 );
 
+const updatePasswordController = container.resolve(UpdatePasswordController);
 userRouter.post(
   "/updatePassword",
   JoiValidator(updatePasswordRequestSchema),
-  UpdatePasswordController.handle
+  (req, res, next) => updatePasswordController.handle(req, res, next)
 );
 
 const cancelAccountController = container.resolve(CancelAccountController);

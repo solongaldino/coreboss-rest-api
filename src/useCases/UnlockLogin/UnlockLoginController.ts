@@ -1,14 +1,21 @@
 import { NextFunction, Request, Response } from "express";
-import UnlockLoginUseCase from "./UnlockLoginUseCase";
+import { inject, singleton } from "tsyringe";
+import IUnlockLoginUseCase from "./IUnlockLoginUseCase";
 
-class UnlockLoginController {
+@singleton()
+export default class UnlockLoginController {
+  constructor(
+    @inject("UnlockLoginUseCase")
+    private unlockLoginUseCase: IUnlockLoginUseCase
+  ) {}
+
   public async handle(req: Request, res: Response, next: NextFunction) {
+    const { token } = req.body;
     try {
-      await UnlockLoginUseCase.run(req.body.token);
-      return res.status(200);
+      await this.unlockLoginUseCase.run({ token });
+      return res.status(204);
     } catch (error) {
       return next(error);
     }
   }
 }
-export default new UnlockLoginController();

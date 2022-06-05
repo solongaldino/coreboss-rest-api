@@ -1,7 +1,7 @@
-import { AuthJwt } from "../../utils";
+import IIsAuthenticatedUseCase from "./IIsAuthenticatedUseCase";
 import IIsAuthenticatedUseCaseDTO from "./IIsAuthenticatedUseCaseDTO";
 
-class IsAuthenticatedUseCase {
+class IsAuthenticatedUseCase implements IIsAuthenticatedUseCase {
   async run(data: IIsAuthenticatedUseCaseDTO) {
     // return AuthJwtService.isAuthenticated(token);
   }

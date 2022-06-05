@@ -55,7 +55,7 @@ export default class ConfirmationRegisterUseCase
 
     try {
       await PrismaClientProvider.$transaction(async (conn) => {
-        const createUser = this.userRepository.create(
+        await this.userRepository.create(
           {
             data: {
               id: UID.create(),
@@ -71,7 +71,7 @@ export default class ConfirmationRegisterUseCase
           conn
         );
 
-        const updateTokenMail = this.tokenMailRepository.update(
+        await this.tokenMailRepository.update(
           {
             where: {
               id: tokenMail.id,
@@ -82,8 +82,6 @@ export default class ConfirmationRegisterUseCase
           },
           conn
         );
-
-        return [createUser, updateTokenMail];
       });
     } catch (error) {
       throw new ApiError(400, error.message);

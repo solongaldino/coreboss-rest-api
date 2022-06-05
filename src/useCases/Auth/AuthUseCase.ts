@@ -121,9 +121,9 @@ export default class AuthUseCase implements IAuthUseCase {
       id: user.id,
     });
 
-    const transaction = await PrismaClientProvider.$transaction(
-      async (conn) => {
-        const loginStatement = await this.loginStatementRepository.create(
+    try {
+      await PrismaClientProvider.$transaction(async (conn) => {
+        await this.loginStatementRepository.create(
           {
             data: {
               id: UID.create(),
@@ -134,7 +134,7 @@ export default class AuthUseCase implements IAuthUseCase {
           conn
         );
 
-        const updateAttemptLoginUser = await this.userRepository.update(
+        await this.userRepository.update(
           {
             where: {
               id: user.id,
@@ -145,12 +145,10 @@ export default class AuthUseCase implements IAuthUseCase {
           },
           conn
         );
-
-        return [loginStatement, updateAttemptLoginUser];
-      }
-    );
-
-    if (!transaction) throw new ApiError(400, "Transaction fail");
+      });
+    } catch (error) {
+      throw new ApiError(400, error.message);
+    }
 
     return xAccessToken;
   }

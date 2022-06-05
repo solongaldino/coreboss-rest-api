@@ -62,10 +62,13 @@ userRouter.post(
   PasswordRecoveryController.handle
 );
 
+const confirmPasswordRecoveryController = container.resolve(
+  ConfirmPasswordRecoveryController
+);
 userRouter.post(
   "/confirmPasswordRecovery",
   JoiValidator(confirmPasswordRecoveryRequestSchema),
-  ConfirmPasswordRecoveryController.handle
+  (req, res, next) => confirmPasswordRecoveryController.handle(req, res, next)
 );
 
 userRouter.post(

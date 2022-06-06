@@ -1,4 +1,4 @@
-import { container, delay } from "tsyringe";
+import { container } from "tsyringe";
 import {
   IAdsRepository,
   IJwtBlackListRepository,

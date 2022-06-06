@@ -13,7 +13,7 @@ export default class UnlockLoginController {
     const { token } = req.body;
     try {
       await this.unlockLoginUseCase.run({ token });
-      return res.status(204);
+      return res.status(204).send();
     } catch (error) {
       return next(error);
     }

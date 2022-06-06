@@ -15,7 +15,7 @@ export default class CancelAccountController {
         password,
         userId,
       });
-      return res.status(204);
+      return res.status(204).send();
     } catch (error) {
       return next(error);
     }

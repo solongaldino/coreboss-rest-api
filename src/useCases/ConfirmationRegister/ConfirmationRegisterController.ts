@@ -12,7 +12,7 @@ export default class ConfirmationRegisterController {
     const { token } = req.body;
     try {
       await this.confirmationRegisterUseCase.run({ token });
-      return res.status(201);
+      return res.status(201).send();
     } catch (error) {
       return next(error);
     }

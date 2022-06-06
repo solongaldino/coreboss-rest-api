@@ -13,7 +13,7 @@ export default class IsRegisteredEmailController {
     try {
       const { email } = req.body;
       await this.isRegisteredEmailUseCase.run({ email });
-      return res.status(204);
+      return res.status(204).send();
     } catch (error) {
       return next(error);
     }

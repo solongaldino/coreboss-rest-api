@@ -2,10 +2,11 @@ import { TokenMailStatus } from "@enums/TokenMail";
 import { ApiError, CryptoPassword, Token } from "@utils";
 import IConfirmPasswordRecoveryUseCaseDTO from "./IConfirmPasswordRecoveryUseCaseDTO";
 import IConfirmPasswordRecoveryUseCase from "./IConfirmPasswordRecoveryUseCase";
-import { inject } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 import { ITokenMailRepository, IUserRepository } from "@repositories/prisma";
 import { PrismaClientProvider } from "@providers";
 
+@injectable()
 export default class ConfirmPasswordRecoveryUseCase
   implements IConfirmPasswordRecoveryUseCase
 {

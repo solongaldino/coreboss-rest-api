@@ -14,7 +14,7 @@ export default class IsAuthenticatedController {
 
     try {
       await this.isAuthenticatedUseCase.run({ xAccessToken });
-      return res.status(204);
+      return res.status(204).send();
     } catch (error) {
       return next(error);
     }

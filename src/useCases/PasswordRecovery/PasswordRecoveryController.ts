@@ -13,7 +13,7 @@ export default class PassworRecoveryController {
     const { email } = req.body;
     try {
       await this.passwordRecoveryUseCase.run(email);
-      return res.status(204);
+      return res.status(204).send();
     } catch (error) {
       return next(error);
     }

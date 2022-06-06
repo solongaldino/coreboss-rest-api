@@ -16,7 +16,7 @@ export default class UpdatePasswordController {
         newPassword,
         userId,
       });
-      return res.status(204);
+      return res.status(204).send();
     } catch (error) {
       return next(error);
     }

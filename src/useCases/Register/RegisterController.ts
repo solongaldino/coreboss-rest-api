@@ -13,7 +13,7 @@ export default class RegisterController {
     const { email, password } = req.body;
     try {
       await this.registerUseCase.run({ email, password });
-      return res.status(201);
+      return res.status(201).send();
     } catch (error) {
       return next(error);
     }

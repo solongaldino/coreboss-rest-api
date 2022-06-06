@@ -1,7 +1,7 @@
 import { inject, injectable } from "tsyringe";
-import { TokenMailStatus, TokenMailType } from "../../enums/TokenMail";
-import { ITokenMailRepository, IUserRepository } from "../../repositories";
-import { ApiError, CryptoPassword, Token, UID } from "../../utils";
+import { TokenMailStatus, TokenMailType } from "@enums/TokenMail";
+import { ITokenMailRepository, IUserRepository } from "@repositories/prisma";
+import { ApiError, CryptoPassword, Token, UID } from "@utils";
 import ICancelAccountUseCase from "./ICancelAccountUseCase";
 import ICancelAccountUseCaseDTO from "./ICancelAccountUseCaseDTO";
 @injectable()

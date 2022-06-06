@@ -17,7 +17,7 @@ export default class AuthController {
 
       const response: IAuthResponseDTO = { xAccessToken: dataAuth };
 
-      return res.send(response);
+      return res.status(200).send(response);
     } catch (error) {
       return next(error);
     }

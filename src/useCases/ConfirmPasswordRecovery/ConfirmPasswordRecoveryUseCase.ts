@@ -1,15 +1,24 @@
-import { TokenMailStatus } from "../../enums/TokenMail";
-import {
-  BaseRepository,
-  TokenMailRepository,
-  UserRepository,
-} from "../../repositories";
-import { ApiError, CryptoPassword, Token } from "../../utils";
+import { TokenMailStatus } from "@enums/TokenMail";
+import { ApiError, CryptoPassword, Token } from "@utils";
 import IConfirmPasswordRecoveryUseCaseDTO from "./IConfirmPasswordRecoveryUseCaseDTO";
+import IConfirmPasswordRecoveryUseCase from "./IConfirmPasswordRecoveryUseCase";
+import { inject, injectable } from "tsyringe";
+import { ITokenMailRepository, IUserRepository } from "@repositories/prisma";
+import { PrismaClientProvider } from "@providers";
 
-class ConfirmPasswordRecoveryUseCase {
+@injectable()
+export default class ConfirmPasswordRecoveryUseCase
+  implements IConfirmPasswordRecoveryUseCase
+{
+  constructor(
+    @inject("TokenMailRepository")
+    private tokenMailRepository: ITokenMailRepository,
+    @inject("UserRepository")
+    private userRepository: IUserRepository
+  ) {}
+
   async run(data: IConfirmPasswordRecoveryUseCaseDTO) {
-    const tokenMail = await TokenMailRepository.findByToken(data.token);
+    const tokenMail = await this.tokenMailRepository.findByToken(data.token);
 
     if (!tokenMail) throw new ApiError(400, "Token não existe");
 
@@ -17,7 +26,7 @@ class ConfirmPasswordRecoveryUseCase {
       throw new ApiError(400, "Token expirado");
 
     if (Token.isExpired(tokenMail.token_expiration)) {
-      await TokenMailRepository.update({
+      await this.tokenMailRepository.update({
         where: {
           id: tokenMail.id,
         },
@@ -29,35 +38,39 @@ class ConfirmPasswordRecoveryUseCase {
       throw new ApiError(400, "Token expirado");
     }
 
-    const user = await UserRepository.findByEmail(tokenMail.email);
+    const user = await this.userRepository.findByEmail(tokenMail.email);
     if (!!!user) throw new ApiError(400, "E-mail não encontrado");
 
     const passwordEc = CryptoPassword.generationHash(data.password);
 
-    const updatePasswordUser = UserRepository.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        password: passwordEc,
-      },
-    });
+    try {
+      await PrismaClientProvider.$transaction(async (conn) => {
+        await this.userRepository.update(
+          {
+            where: {
+              id: user.id,
+            },
+            data: {
+              password: passwordEc,
+            },
+          },
+          conn
+        );
 
-    const updateTokenMail = TokenMailRepository.update({
-      where: {
-        id: tokenMail.id,
-      },
-      data: {
-        status: TokenMailStatus.FINISHED,
-      },
-    });
-
-    const transaction = await BaseRepository.transaction([
-      updatePasswordUser,
-      updateTokenMail,
-    ]);
-
-    if (!transaction) throw new ApiError(400, "Transaction fail");
+        await this.tokenMailRepository.update(
+          {
+            where: {
+              id: tokenMail.id,
+            },
+            data: {
+              status: TokenMailStatus.FINISHED,
+            },
+          },
+          conn
+        );
+      });
+    } catch (error) {
+      throw new ApiError(400, error.message);
+    }
   }
 }
-export default new ConfirmPasswordRecoveryUseCase();

@@ -1,16 +1,23 @@
-import { TokenMailStatus } from "../../enums/TokenMail";
-import { UserStatus } from "../../enums/User";
-import {
-  BaseRepository,
-  TokenMailRepository,
-  UserRepository,
-} from "../../repositories";
-import { ApiError, Token } from "../../utils";
+import { TokenMailStatus } from "@enums/TokenMail";
+import { UserStatus } from "@enums/User";
+import { PrismaClientProvider } from "@providers";
+import { ITokenMailRepository, IUserRepository } from "@repositories/prisma";
+import { ApiError, Token } from "@utils";
+import { inject, injectable } from "tsyringe";
+import IUnlockLoginUseCase from "./IUnlockLoginUseCase";
 import IUnlockLoginUseCaseDTO from "./IUnlockLoginUseCaseDTO";
 
-class UnlockLoginUseCase {
+@injectable()
+export default class UnlockLoginUseCase implements IUnlockLoginUseCase {
+  constructor(
+    @inject("UserRepository")
+    private userRepository: IUserRepository,
+    @inject("TokenMailRepository")
+    private tokenMailRepository: ITokenMailRepository
+  ) {}
+
   async run(data: IUnlockLoginUseCaseDTO) {
-    const tokenMail = await TokenMailRepository.findByToken(data.token);
+    const tokenMail = await this.tokenMailRepository.findByToken(data.token);
 
     if (!tokenMail) throw new ApiError(400, "Token não existe");
 
@@ -18,7 +25,7 @@ class UnlockLoginUseCase {
       throw new ApiError(400, "Token expirado");
 
     if (Token.isExpired(tokenMail.token_expiration)) {
-      await TokenMailRepository.update({
+      await this.tokenMailRepository.update({
         where: {
           id: tokenMail.id,
         },
@@ -30,34 +37,38 @@ class UnlockLoginUseCase {
       throw new ApiError(400, "Token expirado");
     }
 
-    const user = await UserRepository.findByEmail(tokenMail.email);
+    const user = await this.userRepository.findByEmail(tokenMail.email);
     if (!!!user) throw new ApiError(400, "E-mail não encontrado");
 
-    const updateUser = UserRepository.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        attempt_login: 0,
-        status: UserStatus.ACTIVE,
-      },
-    });
+    try {
+      await PrismaClientProvider.$transaction(async (conn) => {
+        await this.userRepository.update(
+          {
+            where: {
+              id: user.id,
+            },
+            data: {
+              attempt_login: 0,
+              status: UserStatus.ACTIVE,
+            },
+          },
+          conn
+        );
 
-    const updateTokenMail = TokenMailRepository.update({
-      where: {
-        id: tokenMail.id,
-      },
-      data: {
-        status: TokenMailStatus.FINISHED,
-      },
-    });
-
-    const transaction = await BaseRepository.transaction([
-      updateUser,
-      updateTokenMail,
-    ]);
-
-    if (!transaction) throw new ApiError(400, "Transaction fail");
+        await this.tokenMailRepository.update(
+          {
+            where: {
+              id: tokenMail.id,
+            },
+            data: {
+              status: TokenMailStatus.FINISHED,
+            },
+          },
+          conn
+        );
+      });
+    } catch (error) {
+      throw new ApiError(400, error.message);
+    }
   }
 }
-export default new UnlockLoginUseCase();

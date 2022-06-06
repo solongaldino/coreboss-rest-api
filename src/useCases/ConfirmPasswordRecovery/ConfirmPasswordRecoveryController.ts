@@ -1,18 +1,24 @@
 import { NextFunction, Request, Response } from "express";
-import ConfirmPasswordRecoveryUseCase from "./ConfirmPasswordRecoveryUseCase";
+import { inject, singleton } from "tsyringe";
+import IConfirmPasswordRecoveryUseCase from "./IConfirmPasswordRecoveryUseCase";
 
-class ConfirmPasswordRecoveryController {
+@singleton()
+export default class ConfirmPasswordRecoveryController {
+  constructor(
+    @inject("ConfirmPasswordRecoveryUseCase")
+    private confirmPasswordRecoveryUseCase: IConfirmPasswordRecoveryUseCase
+  ) {}
+
   public async handle(req: Request, res: Response, next: NextFunction) {
     const { password, token } = req.body;
     try {
-      await ConfirmPasswordRecoveryUseCase.run({
+      await this.confirmPasswordRecoveryUseCase.run({
         password,
         token,
       });
-      return res.status(200);
+      return res.status(204).send();
     } catch (error) {
       return next(error);
     }
   }
 }
-export default new ConfirmPasswordRecoveryController();

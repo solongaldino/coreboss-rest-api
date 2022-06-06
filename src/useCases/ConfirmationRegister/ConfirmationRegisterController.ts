@@ -1,15 +1,20 @@
 import { NextFunction, Request, Response } from "express";
-import ConfirmationRegisterUseCase from "./ConfirmationRegisterUseCase";
+import { inject, singleton } from "tsyringe";
+import IConfirmationRegisterUseCase from "./IConfirmationRegisterUseCase";
+@singleton()
+export default class ConfirmationRegisterController {
+  constructor(
+    @inject("ConfirmationRegisterUseCase")
+    private confirmationRegisterUseCase: IConfirmationRegisterUseCase
+  ) {}
 
-class ConfirmationRegisterController {
   public async handle(req: Request, res: Response, next: NextFunction) {
     const { token } = req.body;
     try {
-      await ConfirmationRegisterUseCase.run({ token });
-      return res.status(201);
+      await this.confirmationRegisterUseCase.run({ token });
+      return res.status(201).send();
     } catch (error) {
       return next(error);
     }
   }
 }
-export default new ConfirmationRegisterController();

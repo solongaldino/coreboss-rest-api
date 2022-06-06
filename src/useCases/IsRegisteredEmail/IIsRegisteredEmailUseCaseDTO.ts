@@ -1,3 +1,3 @@
-export default interface IIRegisteredEmailUseCaseDTO {
+export default interface IIsRegisteredEmailUseCaseDTO {
   email: string;
 }

@@ -1,12 +1,20 @@
-import { UserRepository } from "../../repositories";
-import { ApiError } from "../../utils";
-import IIRegisteredEmailUseCaseDTO from "./IIsRegisteredEmailUseCaseDTO";
+import { IUserRepository } from "@repositories/prisma";
+import { ApiError } from "@utils";
+import { inject, injectable } from "tsyringe";
+import IIsRegisteredEmailUseCase from "./IIsRegisteredEmailUseCase";
+import IIsRegisteredEmailUseCaseDTO from "./IIsRegisteredEmailUseCaseDTO";
 
-class IsRegisteredEmailUseCase {
-  async run(data: IIRegisteredEmailUseCaseDTO) {
-    const user = await UserRepository.findByEmail(data.email);
-    if (!!!user) throw new ApiError(400, "Usuário não encontrado");
-    return true;
+@injectable()
+export default class IsRegisteredEmailUseCase
+  implements IIsRegisteredEmailUseCase
+{
+  constructor(
+    @inject("UserRepository")
+    private userRepository: IUserRepository
+  ) {}
+
+  async run(data: IIsRegisteredEmailUseCaseDTO) {
+    const user = await this.userRepository.findByEmail(data.email);
+    if (user) throw new ApiError(400, "Email encontra-se em uso");
   }
 }
-export default new IsRegisteredEmailUseCase();

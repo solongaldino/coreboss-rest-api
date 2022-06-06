@@ -1,25 +1,20 @@
 import { inject, injectable } from "tsyringe";
-import { TokenMailStatus, TokenMailType } from "../../enums/TokenMail";
-import { UserStatus } from "../../enums/User";
-import { PrismaClientProvider } from "../../providers";
+import { TokenMailStatus, TokenMailType } from "@enums/TokenMail";
+import { UserStatus } from "@enums/User";
+import { PrismaClientProvider } from "@providers";
 import {
   ILoginStatementRepository,
   ITokenMailRepository,
   IUserRepository,
-} from "../../repositories";
-import {
-  LoginStatementRepository,
-  TokenMailRepository,
-  UserRepository,
-} from "../../repositories/implementations";
-import { ApiError, AuthJwt, CryptoPassword, Token, UID } from "../../utils";
+} from "@repositories/prisma";
+import { ApiError, AuthJwt, CryptoPassword, Token, UID } from "@utils";
 import IAuthUseCase from "./IAuthUseCase";
 import IAuthUseCaseDTO from "./IAuthUseCaseDTO";
 
 const MAX_ATTEMPT_LOGIN: number = 5;
 
 @injectable()
-export default class AuthUseCase implements AuthUseCase {
+export default class AuthUseCase implements IAuthUseCase {
   constructor(
     @inject("LoginStatementRepository")
     private loginStatementRepository: ILoginStatementRepository,
@@ -126,9 +121,9 @@ export default class AuthUseCase implements AuthUseCase {
       id: user.id,
     });
 
-    const transaction = await PrismaClientProvider.$transaction(
-      async (conn) => {
-        const loginStatement = await this.loginStatementRepository.create(
+    try {
+      await PrismaClientProvider.$transaction(async (conn) => {
+        await this.loginStatementRepository.create(
           {
             data: {
               id: UID.create(),
@@ -139,7 +134,7 @@ export default class AuthUseCase implements AuthUseCase {
           conn
         );
 
-        const updateAttemptLoginUser = await this.userRepository.update(
+        await this.userRepository.update(
           {
             where: {
               id: user.id,
@@ -150,12 +145,10 @@ export default class AuthUseCase implements AuthUseCase {
           },
           conn
         );
-
-        return [loginStatement, updateAttemptLoginUser];
-      }
-    );
-
-    if (!transaction) throw new ApiError(400, "Transaction fail");
+      });
+    } catch (error) {
+      throw new ApiError(400, error.message);
+    }
 
     return xAccessToken;
   }

@@ -1,5 +1,5 @@
 import { TokenMail, Prisma } from "@prisma/client";
-import { Connection } from "../types";
+import { Connection } from "@types";
 import IMainRepository from "./IMainRepository";
 
 interface ITokenMailRepository
@@ -19,11 +19,14 @@ interface ITokenMailRepository
     Prisma.TokenMailUpdateManyArgs,
     Prisma.TokenMailUpsertArgs
   > {
-  findById(param: TokenMail["id"], conn: Connection): Promise<TokenMail | null>;
+  findById(
+    param: TokenMail["id"],
+    conn?: Connection
+  ): Promise<TokenMail | null>;
 
   findByToken(
     param: TokenMail["token"],
-    conn: Connection
+    conn?: Connection
   ): Promise<TokenMail | null>;
 }
 

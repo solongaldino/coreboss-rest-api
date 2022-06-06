@@ -1,5 +1,5 @@
 import { Prisma, User } from "@prisma/client";
-import { PrismaClientProvider } from "../../providers";
+import { PrismaClientProvider } from "@providers";
 import IUserRepository from "../IUserRepository";
 import MainReporitory from "./MainRepository";
 class UserRepository

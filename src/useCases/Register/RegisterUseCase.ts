@@ -1,10 +1,21 @@
-import { TokenMailStatus, TokenMailType } from "../../enums/TokenMail";
-import { TokenMailRepository, UserRepository } from "../../repositories";
-import { ApiError, CryptoPassword, Token, UID } from "../../utils";
+import { TokenMailStatus, TokenMailType } from "@enums/TokenMail";
+import { ITokenMailRepository, IUserRepository } from "@repositories/prisma";
+import { ApiError, CryptoPassword, Token, UID } from "@utils";
+import { inject, injectable } from "tsyringe";
+import IRegisterUseCase from "./IRegisterUseCase";
 import IRegisterUseCaseDTO from "./IRegisterUseCaseDTO";
-class RegisterUseCase {
+
+@injectable()
+export default class RegisterUseCase implements IRegisterUseCase {
+  constructor(
+    @inject("UserRepository")
+    private userRepository: IUserRepository,
+    @inject("TokenMailRepository")
+    private tokenMailRepository: ITokenMailRepository
+  ) {}
+
   async run(data: IRegisterUseCaseDTO) {
-    const user = await UserRepository.findByEmail(data.email);
+    const user = await this.userRepository.findByEmail(data.email);
 
     if (!!user) throw new ApiError(401, "E-mail encontra-se em uso");
 
@@ -12,7 +23,7 @@ class RegisterUseCase {
 
     const token = Token.create();
 
-    const tokenMail = await TokenMailRepository.create({
+    const tokenMail = await this.tokenMailRepository.create({
       data: {
         id: UID.create(),
         email: data.email,
@@ -35,5 +46,3 @@ class RegisterUseCase {
     // Envia e-mail para confirmação do cadastro
   }
 }
-
-export default new RegisterUseCase();

@@ -1,16 +1,21 @@
 import { NextFunction, Request, Response } from "express";
-import RegisterUseCase from "./RegisterUseCase";
+import { inject, singleton } from "tsyringe";
+import IRegisterUseCase from "./IRegisterUseCase";
 
-class RegisterController {
+@singleton()
+export default class RegisterController {
+  constructor(
+    @inject("RegisterUseCase")
+    private registerUseCase: IRegisterUseCase
+  ) {}
+
   public async handle(req: Request, res: Response, next: NextFunction) {
     const { email, password } = req.body;
-
     try {
-      await RegisterUseCase.run({ email, password });
-      return res.status(201);
+      await this.registerUseCase.run({ email, password });
+      return res.status(201).send();
     } catch (error) {
       return next(error);
     }
   }
 }
-export default new RegisterController();

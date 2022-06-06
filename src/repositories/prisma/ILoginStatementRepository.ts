@@ -1,5 +1,5 @@
 import { LoginStatement, Prisma } from "@prisma/client";
-import { Connection } from "../types";
+import { Connection } from "@types";
 import IMainRepository from "./IMainRepository";
 
 interface ILoginStatementRepository
@@ -21,7 +21,7 @@ interface ILoginStatementRepository
   > {
   findById(
     param: LoginStatement["id"],
-    conn: Connection
+    conn?: Connection
   ): Promise<LoginStatement | null>;
 }
 

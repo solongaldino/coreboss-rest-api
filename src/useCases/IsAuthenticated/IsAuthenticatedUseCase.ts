@@ -1,7 +1,9 @@
-import { AuthJwt } from "../../utils";
+import { injectable } from "tsyringe";
+import IIsAuthenticatedUseCase from "./IIsAuthenticatedUseCase";
 import IIsAuthenticatedUseCaseDTO from "./IIsAuthenticatedUseCaseDTO";
 
-class IsAuthenticatedUseCase {
+@injectable()
+export default class IsAuthenticatedUseCase implements IIsAuthenticatedUseCase {
   async run(data: IIsAuthenticatedUseCaseDTO) {
     // return AuthJwtService.isAuthenticated(token);
   }
@@ -15,4 +17,3 @@ class IsAuthenticatedUseCase {
   //     return !!result ? true : false;
   //   }
 }
-export default new IsAuthenticatedUseCase();

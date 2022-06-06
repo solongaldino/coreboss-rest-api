@@ -1,5 +1,5 @@
 import { Ads, Prisma } from "@prisma/client";
-import { Connection } from "../types";
+import { Connection } from "@types";
 import IMainRepository from "./IMainRepository";
 
 interface IAdsRepository
@@ -19,7 +19,7 @@ interface IAdsRepository
     Prisma.AdsUpdateManyArgs,
     Prisma.AdsUpsertArgs
   > {
-  findById(param: Ads["id"], conn: Connection): Promise<Ads | null>;
+  findById(param: Ads["id"], conn?: Connection): Promise<Ads | null>;
 }
 
 export default IAdsRepository;

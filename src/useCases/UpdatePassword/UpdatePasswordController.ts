@@ -1,20 +1,24 @@
 import { NextFunction, Request, Response } from "express";
-import UpdatePasswordUseCase from "./UpdatePasswordUseCase";
+import { inject, singleton } from "tsyringe";
+import IUpdatePasswordUseCase from "./IUpdatePasswordUseCase";
+@singleton()
+export default class UpdatePasswordController {
+  constructor(
+    @inject("UpdatePasswordUseCase")
+    private updatePasswordUseCase: IUpdatePasswordUseCase
+  ) {}
 
-class UpdatePasswordController {
   public async handle(req: Request, res: Response, next: NextFunction) {
     const { password, newPassword, userId } = req.body;
     try {
-      await UpdatePasswordUseCase.run({
+      await this.updatePasswordUseCase.run({
         password,
         newPassword,
         userId,
       });
-
-      return res.status(200);
+      return res.status(204).send();
     } catch (error) {
       return next(error);
     }
   }
 }
-export default new UpdatePasswordController();

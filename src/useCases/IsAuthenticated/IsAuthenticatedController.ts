@@ -1,16 +1,22 @@
 import { NextFunction, Request, Response } from "express";
-import IsAuthenticatedUseCase from "./IsAuthenticatedUseCase";
+import { inject, singleton } from "tsyringe";
+import IIsAuthenticatedUseCase from "./IIsAuthenticatedUseCase";
 
-class IsAuthenticatedController {
+@singleton()
+export default class IsAuthenticatedController {
+  constructor(
+    @inject("IsAuthenticatedUseCase")
+    private isAuthenticatedUseCase: IIsAuthenticatedUseCase
+  ) {}
+
   public async handle(req: Request, res: Response, next: NextFunction) {
     const { xAccessToken } = req.body;
 
     try {
-      await IsAuthenticatedUseCase.run({ xAccessToken });
-      return res.status(200);
+      await this.isAuthenticatedUseCase.run({ xAccessToken });
+      return res.status(204).send();
     } catch (error) {
       return next(error);
     }
   }
 }
-export default new IsAuthenticatedController();

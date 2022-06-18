@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+  node_api:
+    container_name: "coreboss_api"
+    build: .
+    env_file:
+      - .env
+    ports:
+      - $NODE_PORT_EXTERNAL_DOCKER:$NODE_PORT_CONTAINER_DOCKER
+
+  mysql:
+    image: mysql
+    container_name: "coreboss_mysql"
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD_DOCKER
+      - MYSQL_DATABASE=$MYSQL_DATABASE_DOCKER
+      - MYSQL_USER=$MYSQL_USER_DOCKER
+      - MYSQL_PASSWORD=$MYSQL_PASSWORD_DOCKER
+    ports:
+      - $MYSQL_PORT_EXTERNAL_DOCKER:$MYSQL_PORT_CONTAINER_DOCKER
+    volumes:
+      - ./volumes/mysql/data:/var/lib/mysql
+      - ./scripts/msql-init-docker.sql:/docker-entrypoint-initdb.d/init.sql
